@@ -1688,10 +1688,28 @@ func genAccountGettersSetters(
 
 			var seedProgramValue *[]byte
 			if account.PDA.Program != nil {
-				if account.PDA.Program.Value == nil {
-					panic("cannot handle non-const type program value in PDA seeds")
+				if account.PDA.Program.Kind == "const" {
+					if account.PDA.Program.Value == nil {
+						panic(fmt.Sprintf("seed program value for %s is nil", account.Name))
+					}
+
+					seedProgramValue = &account.PDA.Program.Value
 				}
-				seedProgramValue = &account.PDA.Program.Value
+
+				if account.PDA.Program.Kind == "account" {
+					// Find the account in the instruction's accounts list.
+					for _, acc := range accounts {
+						if acc.IdlAccount.Name == account.PDA.Program.Path {
+							addrBytes := solana.MPK(acc.IdlAccount.Address).Bytes()
+							seedProgramValue = &addrBytes
+							break
+						}
+					}
+
+					if seedProgramValue == nil {
+						panic(fmt.Sprintf("seed path account not found: %s", account.Name))
+					}
+				}
 			}
 
 			// Now generate the functions
