@@ -295,7 +295,7 @@ func DecodeInstructions(message *ag_solanago.Message) (instructions []*Instructi
 			return
 		}
 		var insDecoded *Instruction
-		if insDecoded, err = decodeInstruction(accounts, ins.Data); err != nil {
+		if insDecoded, err = DecodeInstruction(accounts, ins.Data); err != nil {
 			return
 		}
 		instructions = append(instructions, insDecoded)
@@ -1613,34 +1613,72 @@ func genAccountGettersSetters(
 						})))
 					}
 				} else if seedDef.Kind == "arg" {
-					paramName := ToLowerCamel(seedDef.Path)
+					if strings.Contains(seedDef.Path, ".") {
+						parts := strings.Split(seedDef.Path, ".")
+						if len(parts) != 2 {
+							panic(fmt.Sprintf("invalid seed path format: %s", seedDef.Path))
+						}
+						param, field := parts[0], parts[1]
+						paramName, fieldName := ToLowerCamel(param), ToCamel(field)
 
-					var argDef *IdlField
-					for i := range instruction.Args {
-						if instruction.Args[i].Name == seedDef.Path {
-							argDef = &instruction.Args[i]
-							break
+						// Find the account in the instruction's accounts list.
+						var argDef *IdlField
+						for i := range instruction.Args {
+							if instruction.Args[i].Name == paramName {
+								argDef = &instruction.Args[i]
+								break
+							}
+						}
+						if argDef == nil {
+							panic(fmt.Sprintf("arg '%s' not found for pda seed", seedDef.Path))
+						}
+
+						seedParamTypes[paramName] = genTypeName(argDef.Type)
+						seedParamKeys = append(seedParamKeys, paramName)
+
+						seedBodyGen[i] = func(body *Group) {
+							body.Commentf("arg: %s", seedDef.Path)
+							body.Add(
+								Block(
+									Var().Id(paramName+"Bytes").Index().Byte(),
+									Id(paramName+"Bytes").Op(",").Err().Op("=").Qual(PkgDfuseBinary, "MarshalBorsh").Call(
+										Id(paramName).Dot(fieldName),
+									),
+									If(Err().Op("!=").Nil()).Block(Return()),
+									Id("seeds").Op("=").Append(Id("seeds"), Id(paramName+"Bytes")),
+								),
+							)
+						}
+
+					} else { // kind: account, path: account
+						paramName := ToLowerCamel(seedDef.Path)
+
+						var argDef *IdlField
+						for i := range instruction.Args {
+							if instruction.Args[i].Name == seedDef.Path {
+								argDef = &instruction.Args[i]
+								break
+							}
+						}
+						if argDef == nil {
+							panic(fmt.Sprintf("arg '%s' not found for pda seed", seedDef.Path))
+						}
+
+						seedParamTypes[paramName] = genTypeName(argDef.Type)
+						seedParamKeys = append(seedParamKeys, paramName)
+
+						seedBodyGen[i] = func(body *Group) {
+							body.Commentf("arg: %s", seedDef.Path)
+							body.Add(
+								Block(
+									Var().Id(paramName+"Bytes").Index().Byte(),
+									Id(paramName+"Bytes").Op(",").Err().Op("=").Qual(PkgDfuseBinary, "MarshalBorsh").Call(Id(paramName)),
+									If(Err().Op("!=").Nil()).Block(Return()),
+									Id("seeds").Op("=").Append(Id("seeds"), Id(paramName+"Bytes")),
+								),
+							)
 						}
 					}
-					if argDef == nil {
-						panic(fmt.Sprintf("arg '%s' not found for pda seed", seedDef.Path))
-					}
-
-					seedParamTypes[paramName] = genTypeName(argDef.Type)
-					seedParamKeys = append(seedParamKeys, paramName)
-
-					seedBodyGen[i] = func(body *Group) {
-						body.Commentf("arg: %s", seedDef.Path)
-						body.Add(
-							Block(
-								Var().Id(paramName+"Bytes").Index().Byte(),
-								Id(paramName+"Bytes").Op(",").Err().Op("=").Qual(PkgDfuseBinary, "MarshalBorsh").Call(Id(paramName)),
-								If(Err().Op("!=").Nil()).Block(Return()),
-								Id("seeds").Op("=").Append(Id("seeds"), Id(paramName+"Bytes")),
-							),
-						)
-					}
-
 				} else if seedDef.Kind == "account" {
 					if strings.Contains(seedDef.Path, ".") { // kind: account, path: account.field
 						parts := strings.Split(seedDef.Path, ".")
@@ -2453,7 +2491,7 @@ func genProgramBoilerplate(idl IDL) (*File, error) {
 				).
 				BlockFunc(func(body *Group) {
 					// Body:
-					body.List(Id("inst"), Err()).Op(":=").Id("decodeInstruction").Call(Id("accounts"), Id("data"))
+					body.List(Id("inst"), Err()).Op(":=").Id("DecodeInstruction").Call(Id("accounts"), Id("data"))
 
 					body.If(
 						Err().Op("!=").Nil(),
@@ -2467,7 +2505,7 @@ func genProgramBoilerplate(idl IDL) (*File, error) {
 		{
 			// `DecodeInstruction` func:
 			code := Empty()
-			code.Func().Id("decodeInstruction").
+			code.Func().Id("DecodeInstruction").
 				Params(
 					ListFunc(func(params *Group) {
 						// Parameters:
