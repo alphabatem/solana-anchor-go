@@ -473,14 +473,14 @@ func (inst *Instruction) MarshalWithEncoder(encoder *ag_binary.Encoder) error {
 }
 
 func registryDecodeInstruction(accounts []*ag_solanago.AccountMeta, data []byte) (interface{}, error) {
-	inst, err := decodeInstruction(accounts, data)
+	inst, err := DecodeInstruction(accounts, data)
 	if err != nil {
 		return nil, err
 	}
 	return inst, nil
 }
 
-func decodeInstruction(accounts []*ag_solanago.AccountMeta, data []byte) (*Instruction, error) {
+func DecodeInstruction(accounts []*ag_solanago.AccountMeta, data []byte) (*Instruction, error) {
 	inst := new(Instruction)
 	if err := ag_binary.NewBorshDecoder(data).Decode(inst); err != nil {
 		return nil, fmt.Errorf("unable to decode instruction: %w", err)
@@ -508,7 +508,7 @@ func DecodeInstructions(message *ag_solanago.Message) (instructions []*Instructi
 			return
 		}
 		var insDecoded *Instruction
-		if insDecoded, err = decodeInstruction(accounts, ins.Data); err != nil {
+		if insDecoded, err = DecodeInstruction(accounts, ins.Data); err != nil {
 			return
 		}
 		instructions = append(instructions, insDecoded)

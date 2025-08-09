@@ -123,15 +123,15 @@ func (inst *UserWithdrawSolInstruction) findFindUserReceiptTokenAccountAddress(u
 	var seeds [][]byte
 	// path: user
 	seeds = append(seeds, user.Bytes())
-	// path: receiptTokenProgram
+	// path: receipt_token_program
 	seeds = append(seeds, receiptTokenProgram.Bytes())
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -182,11 +182,11 @@ func (inst *UserWithdrawSolInstruction) findFindFundAccountAddress(receiptTokenM
 	var seeds [][]byte
 	// const: fund
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -237,11 +237,11 @@ func (inst *UserWithdrawSolInstruction) findFindFundReserveAccountAddress(receip
 	var seeds [][]byte
 	// const: fund_reserve
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64), byte(0x5f), byte(0x72), byte(0x65), byte(0x73), byte(0x65), byte(0x72), byte(0x76), byte(0x65)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -290,23 +290,26 @@ func (inst *UserWithdrawSolInstruction) SetFundWithdrawalBatchAccountAccount(fun
 	return inst
 }
 
-func (inst *UserWithdrawSolInstruction) findFindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+func (inst *UserWithdrawSolInstruction) findFindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, batchId uint64, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
 	// const: withdrawal_batch
 	seeds = append(seeds, []byte{byte(0x77), byte(0x69), byte(0x74), byte(0x68), byte(0x64), byte(0x72), byte(0x61), byte(0x77), byte(0x61), byte(0x6c), byte(0x5f), byte(0x62), byte(0x61), byte(0x74), byte(0x63), byte(0x68)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 	// const: Pubkey.Default{}
 	seeds = append(seeds, []byte{byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0), byte(0x0)})
-	// arg: BatchId
-	batchIdSeed, err := ag_binary.MarshalBorsh(inst.BatchId)
-	if err != nil {
-		return
+	// arg: batch_id
+	{
+		batchIdBytes, marshalErr := ag_binary.MarshalBorsh(batchId)
+		if marshalErr != nil {
+			err = marshalErr
+			return
+		}
+		seeds = append(seeds, batchIdBytes)
 	}
-	seeds = append(seeds, batchIdSeed)
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -315,13 +318,13 @@ func (inst *UserWithdrawSolInstruction) findFindFundWithdrawalBatchAccountAddres
 }
 
 // FindFundWithdrawalBatchAccountAddressWithBumpSeed calculates FundWithdrawalBatchAccount account address with given seeds and a known bump seed.
-func (inst *UserWithdrawSolInstruction) FindFundWithdrawalBatchAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey, err error) {
-	pda, _, err = inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, bumpSeed)
+func (inst *UserWithdrawSolInstruction) FindFundWithdrawalBatchAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, batchId uint64, bumpSeed uint8) (pda ag_solanago.PublicKey, err error) {
+	pda, _, err = inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, batchId, bumpSeed)
 	return
 }
 
-func (inst *UserWithdrawSolInstruction) MustFindFundWithdrawalBatchAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey) {
-	pda, _, err := inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, bumpSeed)
+func (inst *UserWithdrawSolInstruction) MustFindFundWithdrawalBatchAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, batchId uint64, bumpSeed uint8) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, batchId, bumpSeed)
 	if err != nil {
 		panic(err)
 	}
@@ -329,13 +332,13 @@ func (inst *UserWithdrawSolInstruction) MustFindFundWithdrawalBatchAccountAddres
 }
 
 // FindFundWithdrawalBatchAccountAddress finds FundWithdrawalBatchAccount account address with given seeds.
-func (inst *UserWithdrawSolInstruction) FindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
-	pda, bumpSeed, err = inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, 0)
+func (inst *UserWithdrawSolInstruction) FindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, batchId uint64) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+	pda, bumpSeed, err = inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, batchId, 0)
 	return
 }
 
-func (inst *UserWithdrawSolInstruction) MustFindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey) {
-	pda, _, err := inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, 0)
+func (inst *UserWithdrawSolInstruction) MustFindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, batchId uint64) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, batchId, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -359,11 +362,11 @@ func (inst *UserWithdrawSolInstruction) findFindFundTreasuryAccountAddress(recei
 	var seeds [][]byte
 	// const: fund_treasury
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64), byte(0x5f), byte(0x74), byte(0x72), byte(0x65), byte(0x61), byte(0x73), byte(0x75), byte(0x72), byte(0x79)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -414,13 +417,13 @@ func (inst *UserWithdrawSolInstruction) findFindUserFundAccountAddress(receiptTo
 	var seeds [][]byte
 	// const: user_fund
 	seeds = append(seeds, []byte{byte(0x75), byte(0x73), byte(0x65), byte(0x72), byte(0x5f), byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 	// path: user
 	seeds = append(seeds, user.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -471,11 +474,11 @@ func (inst *UserWithdrawSolInstruction) findFindRewardAccountAddress(receiptToke
 	var seeds [][]byte
 	// const: reward
 	seeds = append(seeds, []byte{byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -526,13 +529,13 @@ func (inst *UserWithdrawSolInstruction) findFindUserRewardAccountAddress(receipt
 	var seeds [][]byte
 	// const: user_reward
 	seeds = append(seeds, []byte{byte(0x75), byte(0x73), byte(0x65), byte(0x72), byte(0x5f), byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 	// path: user
 	seeds = append(seeds, user.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -585,7 +588,7 @@ func (inst *UserWithdrawSolInstruction) findFindEventAuthorityAddress(knownBumpS
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)

@@ -97,15 +97,15 @@ func (inst *UserInitializeRewardAccountInstruction) findFindUserReceiptTokenAcco
 	var seeds [][]byte
 	// path: user
 	seeds = append(seeds, user.Bytes())
-	// path: receiptTokenProgram
+	// path: receipt_token_program
 	seeds = append(seeds, receiptTokenProgram.Bytes())
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -156,11 +156,11 @@ func (inst *UserInitializeRewardAccountInstruction) findFindRewardAccountAddress
 	var seeds [][]byte
 	// const: reward
 	seeds = append(seeds, []byte{byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -211,13 +211,13 @@ func (inst *UserInitializeRewardAccountInstruction) findFindUserRewardAccountAdd
 	var seeds [][]byte
 	// const: user_reward
 	seeds = append(seeds, []byte{byte(0x75), byte(0x73), byte(0x65), byte(0x72), byte(0x5f), byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 	// path: user
 	seeds = append(seeds, user.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -270,7 +270,7 @@ func (inst *UserInitializeRewardAccountInstruction) findFindEventAuthorityAddres
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)

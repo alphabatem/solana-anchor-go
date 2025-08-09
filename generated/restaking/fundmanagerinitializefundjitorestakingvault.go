@@ -92,11 +92,11 @@ func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) findFindFund
 	var seeds [][]byte
 	// const: fund
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -147,11 +147,11 @@ func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) findFindFund
 	var seeds [][]byte
 	// const: fund_reserve
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64), byte(0x5f), byte(0x72), byte(0x65), byte(0x73), byte(0x65), byte(0x72), byte(0x76), byte(0x65)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -277,17 +277,17 @@ func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) SetFundVault
 
 func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) findFindFundVaultReceiptTokenAccountAddress(fundReserveAccount ag_solanago.PublicKey, vaultReceiptTokenProgram ag_solanago.PublicKey, vaultReceiptTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
-	// path: fundReserveAccount
+	// path: fund_reserve_account
 	seeds = append(seeds, fundReserveAccount.Bytes())
-	// path: vaultReceiptTokenProgram
+	// path: vault_receipt_token_program
 	seeds = append(seeds, vaultReceiptTokenProgram.Bytes())
-	// path: vaultReceiptTokenMint
+	// path: vault_receipt_token_mint
 	seeds = append(seeds, vaultReceiptTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -336,17 +336,17 @@ func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) SetFundVault
 
 func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) findFindFundVaultSupportedTokenAccountAddress(fundReserveAccount ag_solanago.PublicKey, vaultSupportedTokenProgram ag_solanago.PublicKey, vaultSupportedTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
-	// path: fundReserveAccount
+	// path: fund_reserve_account
 	seeds = append(seeds, fundReserveAccount.Bytes())
-	// path: vaultSupportedTokenProgram
+	// path: vault_supported_token_program
 	seeds = append(seeds, vaultSupportedTokenProgram.Bytes())
-	// path: vaultSupportedTokenMint
+	// path: vault_supported_token_mint
 	seeds = append(seeds, vaultSupportedTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -395,17 +395,17 @@ func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) SetVaultVaul
 
 func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) findFindVaultVaultSupportedTokenAccountAddress(vaultAccount ag_solanago.PublicKey, vaultSupportedTokenProgram ag_solanago.PublicKey, vaultSupportedTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
-	// path: vaultAccount
+	// path: vault_account
 	seeds = append(seeds, vaultAccount.Bytes())
-	// path: vaultSupportedTokenProgram
+	// path: vault_supported_token_program
 	seeds = append(seeds, vaultSupportedTokenProgram.Bytes())
-	// path: vaultSupportedTokenMint
+	// path: vault_supported_token_mint
 	seeds = append(seeds, vaultSupportedTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -458,7 +458,7 @@ func (inst *FundManagerInitializeFundJitoRestakingVaultInstruction) findFindEven
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)

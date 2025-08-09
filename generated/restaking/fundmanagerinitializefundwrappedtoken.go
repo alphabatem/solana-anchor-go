@@ -82,11 +82,11 @@ func (inst *FundManagerInitializeFundWrappedTokenInstruction) findFindFundWrapAc
 	var seeds [][]byte
 	// const: fund_wrap
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64), byte(0x5f), byte(0x77), byte(0x72), byte(0x61), byte(0x70)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -146,17 +146,17 @@ func (inst *FundManagerInitializeFundWrappedTokenInstruction) SetReceiptTokenWra
 
 func (inst *FundManagerInitializeFundWrappedTokenInstruction) findFindReceiptTokenWrapAccountAddress(fundWrapAccount ag_solanago.PublicKey, receiptTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
-	// path: fundWrapAccount
+	// path: fund_wrap_account
 	seeds = append(seeds, fundWrapAccount.Bytes())
 	// const (raw): [6 221 246 225 238 117 143 222 24 66 93 188 228 108 205 218 182 26 252 77 131 185 13 39 254 189 249 40 216 161 139 252]
 	seeds = append(seeds, []byte{byte(0x6), byte(0xdd), byte(0xf6), byte(0xe1), byte(0xee), byte(0x75), byte(0x8f), byte(0xde), byte(0x18), byte(0x42), byte(0x5d), byte(0xbc), byte(0xe4), byte(0x6c), byte(0xcd), byte(0xda), byte(0xb6), byte(0x1a), byte(0xfc), byte(0x4d), byte(0x83), byte(0xb9), byte(0xd), byte(0x27), byte(0xfe), byte(0xbd), byte(0xf9), byte(0x28), byte(0xd8), byte(0xa1), byte(0x8b), byte(0xfc)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -229,11 +229,11 @@ func (inst *FundManagerInitializeFundWrappedTokenInstruction) findFindFundAccoun
 	var seeds [][]byte
 	// const: fund
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -284,11 +284,11 @@ func (inst *FundManagerInitializeFundWrappedTokenInstruction) findFindRewardAcco
 	var seeds [][]byte
 	// const: reward
 	seeds = append(seeds, []byte{byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -339,13 +339,13 @@ func (inst *FundManagerInitializeFundWrappedTokenInstruction) findFindFundWrapAc
 	var seeds [][]byte
 	// const: user_reward
 	seeds = append(seeds, []byte{byte(0x75), byte(0x73), byte(0x65), byte(0x72), byte(0x5f), byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
-	// path: fundWrapAccount
+	// path: fund_wrap_account
 	seeds = append(seeds, fundWrapAccount.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -398,7 +398,7 @@ func (inst *FundManagerInitializeFundWrappedTokenInstruction) findFindEventAutho
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
