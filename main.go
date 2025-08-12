@@ -1618,8 +1618,8 @@ func genAccountGettersSetters(
 						if len(parts) != 2 {
 							panic(fmt.Sprintf("invalid arg path format: %s", seedDef.Path))
 						}
-						argName, fieldName := parts[0], parts[1]
-						paramName := ToLowerCamel(argName) + ToLowerCamel(fieldName)
+						argRootName, argFieldName := parts[0], parts[1]
+						paramName := ToLowerCamel(argRootName) + ToCamel(argFieldName)
 
 						var argDef *IdlField
 						// First, try to match by index (more robust approach)
@@ -1638,7 +1638,7 @@ func genAccountGettersSetters(
 						// Fallback to name matching if index matching didn't work or failed
 						if argDef == nil {
 							for argIdx := range instruction.Args {
-								if instruction.Args[argIdx].Name == argName {
+								if instruction.Args[argIdx].Name == argRootName {
 									argDef = &instruction.Args[argIdx]
 									break
 								}
@@ -1646,7 +1646,7 @@ func genAccountGettersSetters(
 						}
 
 						if argDef == nil {
-							panic(fmt.Sprintf("arg '%s' not found for pda seed (tried both index %d and name matching)", argName, argSeedIndex))
+							panic(fmt.Sprintf("arg '%s' not found for pda seed (tried both index %d and name matching)", argRootName, argSeedIndex))
 						}
 
 						seedParamTypes[paramName] = genTypeName(argDef.Type)
@@ -1656,7 +1656,7 @@ func genAccountGettersSetters(
 							body.Commentf("arg: %s", seedDef.Path)
 							body.Add(
 								Block(
-									Id(paramName+"Bytes").Op(",").Id("marshalErr").Op(":=").Qual(PkgDfuseBinary, "MarshalBorsh").Call(Id(paramName).Dot(ToCamel(fieldName))),
+									Id(paramName+"Bytes").Op(",").Id("marshalErr").Op(":=").Qual(PkgDfuseBinary, "MarshalBorsh").Call(Id(paramName).Dot(ToCamel(argFieldName))),
 									If(Id("marshalErr").Op("!=").Nil()).Block(Err().Op("=").Id("marshalErr"), Return()),
 									Id("seeds").Op("=").Append(Id("seeds"), Id(paramName+"Bytes")),
 								),
@@ -1714,37 +1714,14 @@ func genAccountGettersSetters(
 						if len(parts) != 2 {
 							panic(fmt.Sprintf("invalid seed path format: %s", seedDef.Path))
 						}
-						accountName, fieldName := parts[0], parts[1]
-						paramName := ToLowerCamel(accountName)
-
-						// Find the account in the instruction's accounts list.
-						found := false
-						for _, acc := range accounts {
-							if acc.IdlAccount != nil && acc.IdlAccount.Name == accountName {
-								accountTypeName := ToCamel(seedDef.Account)
-								if accountTypeName == "" {
-									paramName += ToCamel(fieldName)
-								}
-								seedParamTypes[paramName] = Op("*").Qual(PkgSolanaGo, "PublicKey")
-								seedParamOrder = append(seedParamOrder, paramName)
-								found = true
-								break
-							}
-						}
-						if !found {
-							panic(fmt.Sprintf("seed path account not found: %s", accountName))
-						}
+						accountName, accountFieldName := parts[0], parts[1]
+						paramName := ToLowerCamel(accountName) + ToCamel(accountFieldName)
+						seedParamTypes[paramName] = Op("*").Qual(PkgSolanaGo, "PublicKey")
+						seedParamOrder = append(seedParamOrder, paramName)
 
 						seedBodyGen[i] = func(body *Group) {
 							body.Commentf("path: %s", seedDef.Path)
-							body.Add(
-								Block(
-									Var().Id(paramName+"Bytes").Index().Byte(),
-									Id(paramName+"Bytes").Op(",").Err().Op("=").Qual(PkgDfuseBinary, "MarshalBorsh").Call(Id(paramName)),
-									If(Err().Op("!=").Nil()).Block(Return()),
-									Id("seeds").Op("=").Append(Id("seeds"), Id(paramName+"Bytes")),
-								),
-							)
+							body.Add(Id("seeds").Op("=").Append(Id("seeds"), Id(paramName).Dot("Bytes").Call()))
 						}
 
 					} else { // kind: account, path: account
