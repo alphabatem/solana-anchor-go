@@ -12,7 +12,7 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-var ProgramID ag_solanago.PublicKey = ag_solanago.MustPublicKeyFromBase58("frag9zfFME5u1SNhUYGa4cXLzMKgZXF3xwZ2Y1KCYTQ")
+var ProgramID ag_solanago.PublicKey = ag_solanago.MustPublicKeyFromBase58("4qEHCzsLFUnw8jmhmRSmAK5VhZVoSD1iVqukAf92yHi5")
 
 func SetProgramID(PublicKey ag_solanago.PublicKey) {
 	ProgramID = PublicKey
@@ -28,11 +28,11 @@ func init() {
 }
 
 var (
+	Instruction_AdminCreateUserRewardAccountIdempotent = ag_binary.TypeID([8]byte{47, 200, 202, 185, 15, 107, 195, 16})
+
 	Instruction_AdminInitializeExtraAccountMetaList = ag_binary.TypeID([8]byte{43, 34, 13, 49, 167, 88, 235, 235})
 
 	Instruction_AdminInitializeFundAccount = ag_binary.TypeID([8]byte{83, 184, 197, 143, 118, 192, 56, 15})
-
-	Instruction_AdminInitializeFundWrapAccountRewardAccount = ag_binary.TypeID([8]byte{154, 148, 28, 186, 34, 182, 115, 216})
 
 	Instruction_AdminInitializeNormalizedTokenPoolAccount = ag_binary.TypeID([8]byte{36, 90, 87, 197, 124, 174, 14, 225})
 
@@ -44,8 +44,6 @@ var (
 
 	Instruction_AdminUpdateFundAccountIfNeeded = ag_binary.TypeID([8]byte{53, 204, 67, 56, 198, 113, 243, 34})
 
-	Instruction_AdminUpdateFundWrapAccountRewardAccountIfNeeded = ag_binary.TypeID([8]byte{3, 62, 36, 3, 185, 70, 34, 146})
-
 	Instruction_AdminUpdateNormalizedTokenPoolAccountIfNeeded = ag_binary.TypeID([8]byte{117, 212, 78, 133, 31, 164, 123, 241})
 
 	Instruction_AdminUpdateRewardAccountIfNeeded = ag_binary.TypeID([8]byte{113, 211, 75, 86, 235, 248, 240, 2})
@@ -54,25 +52,39 @@ var (
 
 	Instruction_FundManagerAddRestakingVaultCompoundingRewardToken = ag_binary.TypeID([8]byte{70, 54, 67, 157, 194, 6, 105, 141})
 
+	Instruction_FundManagerAddRestakingVaultDistributingRewardToken = ag_binary.TypeID([8]byte{69, 139, 19, 9, 53, 246, 92, 87})
+
 	Instruction_FundManagerAddReward = ag_binary.TypeID([8]byte{26, 6, 104, 77, 57, 237, 13, 5})
-
-	Instruction_FundManagerAddRewardPool = ag_binary.TypeID([8]byte{222, 241, 120, 225, 5, 76, 175, 136})
-
-	Instruction_FundManagerAddRewardPoolHolder = ag_binary.TypeID([8]byte{79, 160, 90, 79, 137, 135, 197, 134})
 
 	Instruction_FundManagerAddSupportedToken = ag_binary.TypeID([8]byte{0, 137, 153, 52, 179, 163, 4, 20})
 
 	Instruction_FundManagerAddTokenSwapStrategy = ag_binary.TypeID([8]byte{14, 59, 222, 151, 4, 112, 133, 184})
 
-	Instruction_FundManagerCloseRewardPool = ag_binary.TypeID([8]byte{159, 24, 238, 47, 253, 39, 6, 30})
-
-	Instruction_FundManagerInitializeFundJitoRestakingVault = ag_binary.TypeID([8]byte{94, 33, 145, 222, 177, 170, 211, 74})
-
-	Instruction_FundManagerInitializeFundJitoRestakingVaultDelegation = ag_binary.TypeID([8]byte{163, 134, 58, 94, 165, 249, 166, 82})
+	Instruction_FundManagerAddWrappedTokenHolder = ag_binary.TypeID([8]byte{168, 128, 19, 89, 96, 185, 8, 38})
 
 	Instruction_FundManagerInitializeFundNormalizedToken = ag_binary.TypeID([8]byte{210, 163, 184, 165, 127, 40, 122, 23})
 
+	Instruction_FundManagerInitializeFundRestakingVault = ag_binary.TypeID([8]byte{197, 78, 171, 122, 189, 150, 117, 182})
+
+	Instruction_FundManagerInitializeFundRestakingVaultDelegation = ag_binary.TypeID([8]byte{107, 151, 170, 88, 44, 135, 209, 207})
+
 	Instruction_FundManagerInitializeFundWrappedToken = ag_binary.TypeID([8]byte{21, 83, 102, 87, 81, 163, 36, 71})
+
+	Instruction_FundManagerRemoveNormalizedTokenPoolSupportedToken = ag_binary.TypeID([8]byte{111, 180, 31, 154, 139, 208, 184, 129})
+
+	Instruction_FundManagerRemoveRestakingVaultCompoundingRewardToken = ag_binary.TypeID([8]byte{103, 237, 63, 36, 105, 160, 171, 66})
+
+	Instruction_FundManagerRemoveRestakingVaultDistributingRewardToken = ag_binary.TypeID([8]byte{188, 146, 18, 253, 217, 15, 37, 10})
+
+	Instruction_FundManagerRemoveSupportedToken = ag_binary.TypeID([8]byte{234, 128, 24, 242, 144, 180, 101, 99})
+
+	Instruction_FundManagerRemoveTokenSwapStrategy = ag_binary.TypeID([8]byte{251, 28, 208, 118, 116, 8, 56, 50})
+
+	Instruction_FundManagerRemoveWrappedTokenHolder = ag_binary.TypeID([8]byte{135, 67, 183, 108, 160, 154, 93, 50})
+
+	Instruction_FundManagerResetFundWrapAccountRewardAccountDelegate = ag_binary.TypeID([8]byte{164, 118, 178, 185, 40, 72, 135, 224})
+
+	Instruction_FundManagerResetWrappedTokenHolderRewardAccountDelegate = ag_binary.TypeID([8]byte{120, 182, 254, 197, 157, 225, 30, 159})
 
 	Instruction_FundManagerSettleReward = ag_binary.TypeID([8]byte{105, 92, 118, 15, 173, 135, 98, 86})
 
@@ -80,11 +92,17 @@ var (
 
 	Instruction_FundManagerUpdateRestakingVaultDelegationStrategy = ag_binary.TypeID([8]byte{54, 180, 250, 68, 121, 2, 143, 87})
 
+	Instruction_FundManagerUpdateRestakingVaultRewardTokenHarvestThreshold = ag_binary.TypeID([8]byte{11, 69, 22, 207, 155, 145, 172, 241})
+
 	Instruction_FundManagerUpdateRestakingVaultStrategy = ag_binary.TypeID([8]byte{131, 35, 217, 161, 90, 24, 63, 133})
+
+	Instruction_FundManagerUpdateReward = ag_binary.TypeID([8]byte{7, 163, 110, 94, 141, 230, 246, 139})
 
 	Instruction_FundManagerUpdateSolStrategy = ag_binary.TypeID([8]byte{107, 157, 24, 119, 5, 88, 154, 147})
 
 	Instruction_FundManagerUpdateSupportedTokenStrategy = ag_binary.TypeID([8]byte{131, 168, 49, 206, 73, 18, 137, 219})
+
+	Instruction_OperatorClaimRemainingReward = ag_binary.TypeID([8]byte{139, 86, 147, 213, 255, 222, 222, 216})
 
 	Instruction_OperatorDonateSolToFund = ag_binary.TypeID([8]byte{88, 167, 224, 32, 221, 203, 157, 69})
 
@@ -104,29 +122,27 @@ var (
 
 	Instruction_SlasherWithdrawNormalizedToken = ag_binary.TypeID([8]byte{30, 86, 7, 231, 47, 59, 162, 214})
 
+	Instruction_TokenTransferHook = ag_binary.TypeID([8]byte{105, 37, 101, 197, 75, 251, 102, 26})
+
 	Instruction_UserCancelWithdrawalRequest = ag_binary.TypeID([8]byte{187, 80, 45, 65, 239, 189, 78, 102})
 
-	Instruction_UserClaimRewards = ag_binary.TypeID([8]byte{8, 211, 145, 71, 169, 22, 80, 33})
+	Instruction_UserClaimReward = ag_binary.TypeID([8]byte{195, 9, 254, 106, 255, 173, 223, 123})
 
 	Instruction_UserCreateFundAccountIdempotent = ag_binary.TypeID([8]byte{18, 13, 182, 219, 153, 232, 60, 152})
 
 	Instruction_UserCreateRewardAccountIdempotent = ag_binary.TypeID([8]byte{143, 244, 109, 23, 228, 116, 145, 26})
 
+	Instruction_UserDelegateRewardAccount = ag_binary.TypeID([8]byte{233, 207, 38, 118, 123, 232, 184, 20})
+
 	Instruction_UserDepositSol = ag_binary.TypeID([8]byte{9, 201, 63, 79, 105, 75, 147, 47})
 
 	Instruction_UserDepositSupportedToken = ag_binary.TypeID([8]byte{139, 84, 137, 218, 229, 151, 183, 154})
 
-	Instruction_UserInitializeFundAccount = ag_binary.TypeID([8]byte{237, 214, 91, 254, 184, 57, 37, 102})
-
-	Instruction_UserInitializeRewardAccount = ag_binary.TypeID([8]byte{35, 77, 53, 232, 36, 237, 146, 246})
+	Instruction_UserDepositVaultReceiptToken = ag_binary.TypeID([8]byte{103, 39, 30, 146, 56, 237, 52, 37})
 
 	Instruction_UserRequestWithdrawal = ag_binary.TypeID([8]byte{147, 199, 177, 14, 195, 86, 62, 134})
 
 	Instruction_UserUnwrapReceiptToken = ag_binary.TypeID([8]byte{86, 95, 41, 69, 120, 184, 110, 223})
-
-	Instruction_UserUpdateFundAccountIfNeeded = ag_binary.TypeID([8]byte{22, 10, 103, 174, 223, 166, 182, 76})
-
-	Instruction_UserUpdateRewardAccountIfNeeded = ag_binary.TypeID([8]byte{156, 78, 23, 8, 238, 177, 204, 173})
 
 	Instruction_UserUpdateRewardPools = ag_binary.TypeID([8]byte{89, 143, 243, 236, 73, 81, 158, 100})
 
@@ -142,12 +158,12 @@ var (
 // InstructionIDToName returns the name of the instruction given its ID.
 func InstructionIDToName(id ag_binary.TypeID) string {
 	switch id {
+	case Instruction_AdminCreateUserRewardAccountIdempotent:
+		return "AdminCreateUserRewardAccountIdempotent"
 	case Instruction_AdminInitializeExtraAccountMetaList:
 		return "AdminInitializeExtraAccountMetaList"
 	case Instruction_AdminInitializeFundAccount:
 		return "AdminInitializeFundAccount"
-	case Instruction_AdminInitializeFundWrapAccountRewardAccount:
-		return "AdminInitializeFundWrapAccountRewardAccount"
 	case Instruction_AdminInitializeNormalizedTokenPoolAccount:
 		return "AdminInitializeNormalizedTokenPoolAccount"
 	case Instruction_AdminInitializeRewardAccount:
@@ -158,8 +174,6 @@ func InstructionIDToName(id ag_binary.TypeID) string {
 		return "AdminUpdateExtraAccountMetaListIfNeeded"
 	case Instruction_AdminUpdateFundAccountIfNeeded:
 		return "AdminUpdateFundAccountIfNeeded"
-	case Instruction_AdminUpdateFundWrapAccountRewardAccountIfNeeded:
-		return "AdminUpdateFundWrapAccountRewardAccountIfNeeded"
 	case Instruction_AdminUpdateNormalizedTokenPoolAccountIfNeeded:
 		return "AdminUpdateNormalizedTokenPoolAccountIfNeeded"
 	case Instruction_AdminUpdateRewardAccountIfNeeded:
@@ -168,38 +182,58 @@ func InstructionIDToName(id ag_binary.TypeID) string {
 		return "FundManagerAddNormalizedTokenPoolSupportedToken"
 	case Instruction_FundManagerAddRestakingVaultCompoundingRewardToken:
 		return "FundManagerAddRestakingVaultCompoundingRewardToken"
+	case Instruction_FundManagerAddRestakingVaultDistributingRewardToken:
+		return "FundManagerAddRestakingVaultDistributingRewardToken"
 	case Instruction_FundManagerAddReward:
 		return "FundManagerAddReward"
-	case Instruction_FundManagerAddRewardPool:
-		return "FundManagerAddRewardPool"
-	case Instruction_FundManagerAddRewardPoolHolder:
-		return "FundManagerAddRewardPoolHolder"
 	case Instruction_FundManagerAddSupportedToken:
 		return "FundManagerAddSupportedToken"
 	case Instruction_FundManagerAddTokenSwapStrategy:
 		return "FundManagerAddTokenSwapStrategy"
-	case Instruction_FundManagerCloseRewardPool:
-		return "FundManagerCloseRewardPool"
-	case Instruction_FundManagerInitializeFundJitoRestakingVault:
-		return "FundManagerInitializeFundJitoRestakingVault"
-	case Instruction_FundManagerInitializeFundJitoRestakingVaultDelegation:
-		return "FundManagerInitializeFundJitoRestakingVaultDelegation"
+	case Instruction_FundManagerAddWrappedTokenHolder:
+		return "FundManagerAddWrappedTokenHolder"
 	case Instruction_FundManagerInitializeFundNormalizedToken:
 		return "FundManagerInitializeFundNormalizedToken"
+	case Instruction_FundManagerInitializeFundRestakingVault:
+		return "FundManagerInitializeFundRestakingVault"
+	case Instruction_FundManagerInitializeFundRestakingVaultDelegation:
+		return "FundManagerInitializeFundRestakingVaultDelegation"
 	case Instruction_FundManagerInitializeFundWrappedToken:
 		return "FundManagerInitializeFundWrappedToken"
+	case Instruction_FundManagerRemoveNormalizedTokenPoolSupportedToken:
+		return "FundManagerRemoveNormalizedTokenPoolSupportedToken"
+	case Instruction_FundManagerRemoveRestakingVaultCompoundingRewardToken:
+		return "FundManagerRemoveRestakingVaultCompoundingRewardToken"
+	case Instruction_FundManagerRemoveRestakingVaultDistributingRewardToken:
+		return "FundManagerRemoveRestakingVaultDistributingRewardToken"
+	case Instruction_FundManagerRemoveSupportedToken:
+		return "FundManagerRemoveSupportedToken"
+	case Instruction_FundManagerRemoveTokenSwapStrategy:
+		return "FundManagerRemoveTokenSwapStrategy"
+	case Instruction_FundManagerRemoveWrappedTokenHolder:
+		return "FundManagerRemoveWrappedTokenHolder"
+	case Instruction_FundManagerResetFundWrapAccountRewardAccountDelegate:
+		return "FundManagerResetFundWrapAccountRewardAccountDelegate"
+	case Instruction_FundManagerResetWrappedTokenHolderRewardAccountDelegate:
+		return "FundManagerResetWrappedTokenHolderRewardAccountDelegate"
 	case Instruction_FundManagerSettleReward:
 		return "FundManagerSettleReward"
 	case Instruction_FundManagerUpdateFundStrategy:
 		return "FundManagerUpdateFundStrategy"
 	case Instruction_FundManagerUpdateRestakingVaultDelegationStrategy:
 		return "FundManagerUpdateRestakingVaultDelegationStrategy"
+	case Instruction_FundManagerUpdateRestakingVaultRewardTokenHarvestThreshold:
+		return "FundManagerUpdateRestakingVaultRewardTokenHarvestThreshold"
 	case Instruction_FundManagerUpdateRestakingVaultStrategy:
 		return "FundManagerUpdateRestakingVaultStrategy"
+	case Instruction_FundManagerUpdateReward:
+		return "FundManagerUpdateReward"
 	case Instruction_FundManagerUpdateSolStrategy:
 		return "FundManagerUpdateSolStrategy"
 	case Instruction_FundManagerUpdateSupportedTokenStrategy:
 		return "FundManagerUpdateSupportedTokenStrategy"
+	case Instruction_OperatorClaimRemainingReward:
+		return "OperatorClaimRemainingReward"
 	case Instruction_OperatorDonateSolToFund:
 		return "OperatorDonateSolToFund"
 	case Instruction_OperatorDonateSupportedTokenToFund:
@@ -218,30 +252,28 @@ func InstructionIDToName(id ag_binary.TypeID) string {
 		return "SlasherInitializeNormalizedTokenWithdrawalAccount"
 	case Instruction_SlasherWithdrawNormalizedToken:
 		return "SlasherWithdrawNormalizedToken"
+	case Instruction_TokenTransferHook:
+		return "TokenTransferHook"
 	case Instruction_UserCancelWithdrawalRequest:
 		return "UserCancelWithdrawalRequest"
-	case Instruction_UserClaimRewards:
-		return "UserClaimRewards"
+	case Instruction_UserClaimReward:
+		return "UserClaimReward"
 	case Instruction_UserCreateFundAccountIdempotent:
 		return "UserCreateFundAccountIdempotent"
 	case Instruction_UserCreateRewardAccountIdempotent:
 		return "UserCreateRewardAccountIdempotent"
+	case Instruction_UserDelegateRewardAccount:
+		return "UserDelegateRewardAccount"
 	case Instruction_UserDepositSol:
 		return "UserDepositSol"
 	case Instruction_UserDepositSupportedToken:
 		return "UserDepositSupportedToken"
-	case Instruction_UserInitializeFundAccount:
-		return "UserInitializeFundAccount"
-	case Instruction_UserInitializeRewardAccount:
-		return "UserInitializeRewardAccount"
+	case Instruction_UserDepositVaultReceiptToken:
+		return "UserDepositVaultReceiptToken"
 	case Instruction_UserRequestWithdrawal:
 		return "UserRequestWithdrawal"
 	case Instruction_UserUnwrapReceiptToken:
 		return "UserUnwrapReceiptToken"
-	case Instruction_UserUpdateFundAccountIfNeeded:
-		return "UserUpdateFundAccountIfNeeded"
-	case Instruction_UserUpdateRewardAccountIfNeeded:
-		return "UserUpdateRewardAccountIfNeeded"
 	case Instruction_UserUpdateRewardPools:
 		return "UserUpdateRewardPools"
 	case Instruction_UserWithdrawSol:
@@ -273,13 +305,13 @@ var InstructionImplDef = ag_binary.NewVariantDefinition(
 	ag_binary.AnchorTypeIDEncoding,
 	[]ag_binary.VariantType{
 		{
+			Name: "admin_create_user_reward_account_idempotent", Type: (*AdminCreateUserRewardAccountIdempotentInstruction)(nil),
+		},
+		{
 			Name: "admin_initialize_extra_account_meta_list", Type: (*AdminInitializeExtraAccountMetaListInstruction)(nil),
 		},
 		{
 			Name: "admin_initialize_fund_account", Type: (*AdminInitializeFundAccountInstruction)(nil),
-		},
-		{
-			Name: "admin_initialize_fund_wrap_account_reward_account", Type: (*AdminInitializeFundWrapAccountRewardAccountInstruction)(nil),
 		},
 		{
 			Name: "admin_initialize_normalized_token_pool_account", Type: (*AdminInitializeNormalizedTokenPoolAccountInstruction)(nil),
@@ -297,9 +329,6 @@ var InstructionImplDef = ag_binary.NewVariantDefinition(
 			Name: "admin_update_fund_account_if_needed", Type: (*AdminUpdateFundAccountIfNeededInstruction)(nil),
 		},
 		{
-			Name: "admin_update_fund_wrap_account_reward_account_if_needed", Type: (*AdminUpdateFundWrapAccountRewardAccountIfNeededInstruction)(nil),
-		},
-		{
 			Name: "admin_update_normalized_token_pool_account_if_needed", Type: (*AdminUpdateNormalizedTokenPoolAccountIfNeededInstruction)(nil),
 		},
 		{
@@ -312,13 +341,10 @@ var InstructionImplDef = ag_binary.NewVariantDefinition(
 			Name: "fund_manager_add_restaking_vault_compounding_reward_token", Type: (*FundManagerAddRestakingVaultCompoundingRewardTokenInstruction)(nil),
 		},
 		{
+			Name: "fund_manager_add_restaking_vault_distributing_reward_token", Type: (*FundManagerAddRestakingVaultDistributingRewardTokenInstruction)(nil),
+		},
+		{
 			Name: "fund_manager_add_reward", Type: (*FundManagerAddRewardInstruction)(nil),
-		},
-		{
-			Name: "fund_manager_add_reward_pool", Type: (*FundManagerAddRewardPoolInstruction)(nil),
-		},
-		{
-			Name: "fund_manager_add_reward_pool_holder", Type: (*FundManagerAddRewardPoolHolderInstruction)(nil),
 		},
 		{
 			Name: "fund_manager_add_supported_token", Type: (*FundManagerAddSupportedTokenInstruction)(nil),
@@ -327,19 +353,43 @@ var InstructionImplDef = ag_binary.NewVariantDefinition(
 			Name: "fund_manager_add_token_swap_strategy", Type: (*FundManagerAddTokenSwapStrategyInstruction)(nil),
 		},
 		{
-			Name: "fund_manager_close_reward_pool", Type: (*FundManagerCloseRewardPoolInstruction)(nil),
-		},
-		{
-			Name: "fund_manager_initialize_fund_jito_restaking_vault", Type: (*FundManagerInitializeFundJitoRestakingVaultInstruction)(nil),
-		},
-		{
-			Name: "fund_manager_initialize_fund_jito_restaking_vault_delegation", Type: (*FundManagerInitializeFundJitoRestakingVaultDelegationInstruction)(nil),
+			Name: "fund_manager_add_wrapped_token_holder", Type: (*FundManagerAddWrappedTokenHolderInstruction)(nil),
 		},
 		{
 			Name: "fund_manager_initialize_fund_normalized_token", Type: (*FundManagerInitializeFundNormalizedTokenInstruction)(nil),
 		},
 		{
+			Name: "fund_manager_initialize_fund_restaking_vault", Type: (*FundManagerInitializeFundRestakingVaultInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_initialize_fund_restaking_vault_delegation", Type: (*FundManagerInitializeFundRestakingVaultDelegationInstruction)(nil),
+		},
+		{
 			Name: "fund_manager_initialize_fund_wrapped_token", Type: (*FundManagerInitializeFundWrappedTokenInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_remove_normalized_token_pool_supported_token", Type: (*FundManagerRemoveNormalizedTokenPoolSupportedTokenInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_remove_restaking_vault_compounding_reward_token", Type: (*FundManagerRemoveRestakingVaultCompoundingRewardTokenInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_remove_restaking_vault_distributing_reward_token", Type: (*FundManagerRemoveRestakingVaultDistributingRewardTokenInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_remove_supported_token", Type: (*FundManagerRemoveSupportedTokenInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_remove_token_swap_strategy", Type: (*FundManagerRemoveTokenSwapStrategyInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_remove_wrapped_token_holder", Type: (*FundManagerRemoveWrappedTokenHolderInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_reset_fund_wrap_account_reward_account_delegate", Type: (*FundManagerResetFundWrapAccountRewardAccountDelegateInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_reset_wrapped_token_holder_reward_account_delegate", Type: (*FundManagerResetWrappedTokenHolderRewardAccountDelegateInstruction)(nil),
 		},
 		{
 			Name: "fund_manager_settle_reward", Type: (*FundManagerSettleRewardInstruction)(nil),
@@ -351,13 +401,22 @@ var InstructionImplDef = ag_binary.NewVariantDefinition(
 			Name: "fund_manager_update_restaking_vault_delegation_strategy", Type: (*FundManagerUpdateRestakingVaultDelegationStrategyInstruction)(nil),
 		},
 		{
+			Name: "fund_manager_update_restaking_vault_reward_token_harvest_threshold", Type: (*FundManagerUpdateRestakingVaultRewardTokenHarvestThresholdInstruction)(nil),
+		},
+		{
 			Name: "fund_manager_update_restaking_vault_strategy", Type: (*FundManagerUpdateRestakingVaultStrategyInstruction)(nil),
+		},
+		{
+			Name: "fund_manager_update_reward", Type: (*FundManagerUpdateRewardInstruction)(nil),
 		},
 		{
 			Name: "fund_manager_update_sol_strategy", Type: (*FundManagerUpdateSolStrategyInstruction)(nil),
 		},
 		{
 			Name: "fund_manager_update_supported_token_strategy", Type: (*FundManagerUpdateSupportedTokenStrategyInstruction)(nil),
+		},
+		{
+			Name: "operator_claim_remaining_reward", Type: (*OperatorClaimRemainingRewardInstruction)(nil),
 		},
 		{
 			Name: "operator_donate_sol_to_fund", Type: (*OperatorDonateSolToFundInstruction)(nil),
@@ -387,10 +446,13 @@ var InstructionImplDef = ag_binary.NewVariantDefinition(
 			Name: "slasher_withdraw_normalized_token", Type: (*SlasherWithdrawNormalizedTokenInstruction)(nil),
 		},
 		{
+			Name: "token_transfer_hook", Type: (*TokenTransferHookInstruction)(nil),
+		},
+		{
 			Name: "user_cancel_withdrawal_request", Type: (*UserCancelWithdrawalRequestInstruction)(nil),
 		},
 		{
-			Name: "user_claim_rewards", Type: (*UserClaimRewardsInstruction)(nil),
+			Name: "user_claim_reward", Type: (*UserClaimRewardInstruction)(nil),
 		},
 		{
 			Name: "user_create_fund_account_idempotent", Type: (*UserCreateFundAccountIdempotentInstruction)(nil),
@@ -399,28 +461,22 @@ var InstructionImplDef = ag_binary.NewVariantDefinition(
 			Name: "user_create_reward_account_idempotent", Type: (*UserCreateRewardAccountIdempotentInstruction)(nil),
 		},
 		{
+			Name: "user_delegate_reward_account", Type: (*UserDelegateRewardAccountInstruction)(nil),
+		},
+		{
 			Name: "user_deposit_sol", Type: (*UserDepositSolInstruction)(nil),
 		},
 		{
 			Name: "user_deposit_supported_token", Type: (*UserDepositSupportedTokenInstruction)(nil),
 		},
 		{
-			Name: "user_initialize_fund_account", Type: (*UserInitializeFundAccountInstruction)(nil),
-		},
-		{
-			Name: "user_initialize_reward_account", Type: (*UserInitializeRewardAccountInstruction)(nil),
+			Name: "user_deposit_vault_receipt_token", Type: (*UserDepositVaultReceiptTokenInstruction)(nil),
 		},
 		{
 			Name: "user_request_withdrawal", Type: (*UserRequestWithdrawalInstruction)(nil),
 		},
 		{
 			Name: "user_unwrap_receipt_token", Type: (*UserUnwrapReceiptTokenInstruction)(nil),
-		},
-		{
-			Name: "user_update_fund_account_if_needed", Type: (*UserUpdateFundAccountIfNeededInstruction)(nil),
-		},
-		{
-			Name: "user_update_reward_account_if_needed", Type: (*UserUpdateRewardAccountIfNeededInstruction)(nil),
 		},
 		{
 			Name: "user_update_reward_pools", Type: (*UserUpdateRewardPoolsInstruction)(nil),

@@ -39,7 +39,7 @@ func NewFundManagerAddNormalizedTokenPoolSupportedTokenInstructionBuilder() *Fun
 	nd := &FundManagerAddNormalizedTokenPoolSupportedTokenInstruction{
 		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 9),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	nd.AccountMetaSlice[3] = ag_solanago.Meta(Addresses["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"])
 	return nd
 }

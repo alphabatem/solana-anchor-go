@@ -13,65 +13,52 @@ import (
 // AdminUpdateExtraAccountMetaListIfNeeded is the `admin_update_extra_account_meta_list_if_needed` instruction.
 type AdminUpdateExtraAccountMetaListIfNeededInstruction struct {
 
-	// [0] = [SIGNER] payer
+	// [0] = [SIGNER] admin
 	//
-	// [1] = [SIGNER] admin
+	// [1] = [] receipt_token_mint
 	//
-	// [2] = [] receipt_token_mint
+	// [2] = [WRITE] extra_account_meta_list
 	//
-	// [3] = [WRITE] extra_account_meta_list
+	// [3] = [] event_authority
 	//
-	// [4] = [] event_authority
-	//
-	// [5] = [] program
+	// [4] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewAdminUpdateExtraAccountMetaListIfNeededInstructionBuilder creates a new `AdminUpdateExtraAccountMetaListIfNeededInstruction` instruction builder.
 func NewAdminUpdateExtraAccountMetaListIfNeededInstructionBuilder() *AdminUpdateExtraAccountMetaListIfNeededInstruction {
 	nd := &AdminUpdateExtraAccountMetaListIfNeededInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 6),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
 	}
-	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["fragkamrANLvuZYQPcmPsCATQAabkqNGH6gxqqPG3aP"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["9b2RSMDYskVvjVbwF4cVwEhZUaaaUgyYSxvESmnoS4LL"]).SIGNER()
 	return nd
-}
-
-// SetPayerAccount sets the "payer" account.
-func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) SetPayerAccount(payer ag_solanago.PublicKey) *AdminUpdateExtraAccountMetaListIfNeededInstruction {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(payer).SIGNER()
-	return inst
-}
-
-// GetPayerAccount gets the "payer" account.
-func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) GetPayerAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(0)
 }
 
 // SetAdminAccount sets the "admin" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) SetAdminAccount(admin ag_solanago.PublicKey) *AdminUpdateExtraAccountMetaListIfNeededInstruction {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(admin).SIGNER()
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(admin).SIGNER()
 	return inst
 }
 
 // GetAdminAccount gets the "admin" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) GetAdminAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(1)
+	return inst.AccountMetaSlice.Get(0)
 }
 
 // SetReceiptTokenMintAccount sets the "receipt_token_mint" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) SetReceiptTokenMintAccount(receiptTokenMint ag_solanago.PublicKey) *AdminUpdateExtraAccountMetaListIfNeededInstruction {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(receiptTokenMint)
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(receiptTokenMint)
 	return inst
 }
 
 // GetReceiptTokenMintAccount gets the "receipt_token_mint" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) GetReceiptTokenMintAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(2)
+	return inst.AccountMetaSlice.Get(1)
 }
 
 // SetExtraAccountMetaListAccount sets the "extra_account_meta_list" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) SetExtraAccountMetaListAccount(extraAccountMetaList ag_solanago.PublicKey) *AdminUpdateExtraAccountMetaListIfNeededInstruction {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(extraAccountMetaList).WRITE()
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(extraAccountMetaList).WRITE()
 	return inst
 }
 
@@ -121,12 +108,12 @@ func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) MustFindExtraAcc
 
 // GetExtraAccountMetaListAccount gets the "extra_account_meta_list" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) GetExtraAccountMetaListAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
+	return inst.AccountMetaSlice.Get(2)
 }
 
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *AdminUpdateExtraAccountMetaListIfNeededInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -174,18 +161,18 @@ func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) MustFindEventAut
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
+	return inst.AccountMetaSlice.Get(3)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) SetProgramAccount(program ag_solanago.PublicKey) *AdminUpdateExtraAccountMetaListIfNeededInstruction {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(5)
+	return inst.AccountMetaSlice.Get(4)
 }
 
 func (inst AdminUpdateExtraAccountMetaListIfNeededInstruction) Build() *Instruction {
@@ -209,21 +196,18 @@ func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) Validate() error
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.Payer is not set")
-		}
-		if inst.AccountMetaSlice[1] == nil {
 			return errors.New("accounts.Admin is not set")
 		}
-		if inst.AccountMetaSlice[2] == nil {
+		if inst.AccountMetaSlice[1] == nil {
 			return errors.New("accounts.ReceiptTokenMint is not set")
 		}
-		if inst.AccountMetaSlice[3] == nil {
+		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.ExtraAccountMetaList is not set")
 		}
-		if inst.AccountMetaSlice[4] == nil {
+		if inst.AccountMetaSlice[3] == nil {
 			return errors.New("accounts.EventAuthority is not set")
 		}
-		if inst.AccountMetaSlice[5] == nil {
+		if inst.AccountMetaSlice[4] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -242,13 +226,12 @@ func (inst *AdminUpdateExtraAccountMetaListIfNeededInstruction) EncodeToTree(par
 					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=6]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("                  payer", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("                  admin", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("     receipt_token_mint", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("extra_account_meta_list", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("        event_authority", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("                program", inst.AccountMetaSlice.Get(5)))
+					instructionBranch.Child("Accounts[len=5]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+						accountsBranch.Child(ag_format.Meta("                  admin", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("     receipt_token_mint", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("extra_account_meta_list", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("        event_authority", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("                program", inst.AccountMetaSlice.Get(4)))
 					})
 				})
 		})
@@ -264,14 +247,12 @@ func (obj *AdminUpdateExtraAccountMetaListIfNeededInstruction) UnmarshalWithDeco
 // NewAdminUpdateExtraAccountMetaListIfNeededInstruction declares a new AdminUpdateExtraAccountMetaListIfNeeded instruction with the provided parameters and accounts.
 func NewAdminUpdateExtraAccountMetaListIfNeededInstruction(
 	// Accounts:
-	payer ag_solanago.PublicKey,
 	admin ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
 	extraAccountMetaList ag_solanago.PublicKey,
 	eventAuthority ag_solanago.PublicKey,
 	program ag_solanago.PublicKey) *AdminUpdateExtraAccountMetaListIfNeededInstruction {
 	return NewAdminUpdateExtraAccountMetaListIfNeededInstructionBuilder().
-		SetPayerAccount(payer).
 		SetAdminAccount(admin).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetExtraAccountMetaListAccount(extraAccountMetaList).

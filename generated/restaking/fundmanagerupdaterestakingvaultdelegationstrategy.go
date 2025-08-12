@@ -16,7 +16,6 @@ type FundManagerUpdateRestakingVaultDelegationStrategyInstruction struct {
 	Operator                      *ag_solanago.PublicKey
 	TokenAllocationWeight         *uint64
 	TokenAllocationCapacityAmount *uint64
-	TokenRedelegatingAmount       *uint64 `bin:"optional"`
 
 	// [0] = [SIGNER] fund_manager
 	//
@@ -35,7 +34,7 @@ func NewFundManagerUpdateRestakingVaultDelegationStrategyInstructionBuilder() *F
 	nd := &FundManagerUpdateRestakingVaultDelegationStrategyInstruction{
 		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	return nd
 }
 
@@ -60,12 +59,6 @@ func (inst *FundManagerUpdateRestakingVaultDelegationStrategyInstruction) SetTok
 // SetTokenAllocationCapacityAmount sets the "token_allocation_capacity_amount" parameter.
 func (inst *FundManagerUpdateRestakingVaultDelegationStrategyInstruction) SetTokenAllocationCapacityAmount(token_allocation_capacity_amount uint64) *FundManagerUpdateRestakingVaultDelegationStrategyInstruction {
 	inst.TokenAllocationCapacityAmount = &token_allocation_capacity_amount
-	return inst
-}
-
-// SetTokenRedelegatingAmount sets the "token_redelegating_amount" parameter.
-func (inst *FundManagerUpdateRestakingVaultDelegationStrategyInstruction) SetTokenRedelegatingAmount(token_redelegating_amount uint64) *FundManagerUpdateRestakingVaultDelegationStrategyInstruction {
-	inst.TokenRedelegatingAmount = &token_redelegating_amount
 	return inst
 }
 
@@ -274,12 +267,11 @@ func (inst *FundManagerUpdateRestakingVaultDelegationStrategyInstruction) Encode
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=5]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Params[len=4]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
 						paramsBranch.Child(ag_format.Param("                           Vault", *inst.Vault))
 						paramsBranch.Child(ag_format.Param("                        Operator", *inst.Operator))
 						paramsBranch.Child(ag_format.Param("           TokenAllocationWeight", *inst.TokenAllocationWeight))
 						paramsBranch.Child(ag_format.Param("   TokenAllocationCapacityAmount", *inst.TokenAllocationCapacityAmount))
-						paramsBranch.Child(ag_format.Param("         TokenRedelegatingAmount (OPT)", inst.TokenRedelegatingAmount))
 					})
 
 					// Accounts of the instruction:
@@ -315,24 +307,6 @@ func (obj FundManagerUpdateRestakingVaultDelegationStrategyInstruction) MarshalW
 	if err != nil {
 		return err
 	}
-	// Serialize `TokenRedelegatingAmount` param (optional):
-	{
-		if obj.TokenRedelegatingAmount == nil {
-			err = encoder.WriteBool(false)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = encoder.WriteBool(true)
-			if err != nil {
-				return err
-			}
-			err = encoder.Encode(obj.TokenRedelegatingAmount)
-			if err != nil {
-				return err
-			}
-		}
-	}
 	return nil
 }
 func (obj *FundManagerUpdateRestakingVaultDelegationStrategyInstruction) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
@@ -356,19 +330,6 @@ func (obj *FundManagerUpdateRestakingVaultDelegationStrategyInstruction) Unmarsh
 	if err != nil {
 		return err
 	}
-	// Deserialize `TokenRedelegatingAmount` (optional):
-	{
-		ok, err := decoder.ReadBool()
-		if err != nil {
-			return err
-		}
-		if ok {
-			err = decoder.Decode(&obj.TokenRedelegatingAmount)
-			if err != nil {
-				return err
-			}
-		}
-	}
 	return nil
 }
 
@@ -379,7 +340,6 @@ func NewFundManagerUpdateRestakingVaultDelegationStrategyInstruction(
 	operator ag_solanago.PublicKey,
 	token_allocation_weight uint64,
 	token_allocation_capacity_amount uint64,
-	token_redelegating_amount uint64,
 	// Accounts:
 	fundManager ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
@@ -391,7 +351,6 @@ func NewFundManagerUpdateRestakingVaultDelegationStrategyInstruction(
 		SetOperator(operator).
 		SetTokenAllocationWeight(token_allocation_weight).
 		SetTokenAllocationCapacityAmount(token_allocation_capacity_amount).
-		SetTokenRedelegatingAmount(token_redelegating_amount).
 		SetFundManagerAccount(fundManager).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetFundAccountAccount(fundAccount).

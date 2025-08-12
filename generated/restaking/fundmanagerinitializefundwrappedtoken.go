@@ -44,8 +44,8 @@ func NewFundManagerInitializeFundWrappedTokenInstructionBuilder() *FundManagerIn
 	nd := &FundManagerInitializeFundWrappedTokenInstruction{
 		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 12),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["fragkamrANLvuZYQPcmPsCATQAabkqNGH6gxqqPG3aP"]).SIGNER()
-	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["9b2RSMDYskVvjVbwF4cVwEhZUaaaUgyYSxvESmnoS4LL"]).SIGNER()
+	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	nd.AccountMetaSlice[6] = ag_solanago.Meta(Addresses["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"])
 	return nd
 }

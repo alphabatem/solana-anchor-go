@@ -13,34 +13,31 @@ import (
 // UserUpdateRewardPools is the `user_update_reward_pools` instruction.
 type UserUpdateRewardPoolsInstruction struct {
 
-	// [0] = [WRITE, SIGNER] user
+	// [0] = [] user
 	//
-	// [1] = [] system_program
+	// [1] = [] receipt_token_mint
 	//
-	// [2] = [] receipt_token_mint
+	// [2] = [WRITE] reward_account
 	//
-	// [3] = [WRITE] reward_account
+	// [3] = [WRITE] user_reward_account
 	//
-	// [4] = [WRITE] user_reward_account
+	// [4] = [] event_authority
 	//
-	// [5] = [] event_authority
-	//
-	// [6] = [] program
+	// [5] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewUserUpdateRewardPoolsInstructionBuilder creates a new `UserUpdateRewardPoolsInstruction` instruction builder.
 func NewUserUpdateRewardPoolsInstructionBuilder() *UserUpdateRewardPoolsInstruction {
 	nd := &UserUpdateRewardPoolsInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 7),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 6),
 	}
-	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["11111111111111111111111111111111"])
 	return nd
 }
 
 // SetUserAccount sets the "user" account.
 func (inst *UserUpdateRewardPoolsInstruction) SetUserAccount(user ag_solanago.PublicKey) *UserUpdateRewardPoolsInstruction {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(user).WRITE().SIGNER()
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(user)
 	return inst
 }
 
@@ -49,31 +46,20 @@ func (inst *UserUpdateRewardPoolsInstruction) GetUserAccount() *ag_solanago.Acco
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetSystemProgramAccount sets the "system_program" account.
-func (inst *UserUpdateRewardPoolsInstruction) SetSystemProgramAccount(systemProgram ag_solanago.PublicKey) *UserUpdateRewardPoolsInstruction {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(systemProgram)
-	return inst
-}
-
-// GetSystemProgramAccount gets the "system_program" account.
-func (inst *UserUpdateRewardPoolsInstruction) GetSystemProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(1)
-}
-
 // SetReceiptTokenMintAccount sets the "receipt_token_mint" account.
 func (inst *UserUpdateRewardPoolsInstruction) SetReceiptTokenMintAccount(receiptTokenMint ag_solanago.PublicKey) *UserUpdateRewardPoolsInstruction {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(receiptTokenMint)
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(receiptTokenMint)
 	return inst
 }
 
 // GetReceiptTokenMintAccount gets the "receipt_token_mint" account.
 func (inst *UserUpdateRewardPoolsInstruction) GetReceiptTokenMintAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(2)
+	return inst.AccountMetaSlice.Get(1)
 }
 
 // SetRewardAccountAccount sets the "reward_account" account.
 func (inst *UserUpdateRewardPoolsInstruction) SetRewardAccountAccount(rewardAccount ag_solanago.PublicKey) *UserUpdateRewardPoolsInstruction {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(rewardAccount).WRITE()
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(rewardAccount).WRITE()
 	return inst
 }
 
@@ -123,12 +109,12 @@ func (inst *UserUpdateRewardPoolsInstruction) MustFindRewardAccountAddress(recei
 
 // GetRewardAccountAccount gets the "reward_account" account.
 func (inst *UserUpdateRewardPoolsInstruction) GetRewardAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
+	return inst.AccountMetaSlice.Get(2)
 }
 
 // SetUserRewardAccountAccount sets the "user_reward_account" account.
 func (inst *UserUpdateRewardPoolsInstruction) SetUserRewardAccountAccount(userRewardAccount ag_solanago.PublicKey) *UserUpdateRewardPoolsInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(userRewardAccount).WRITE()
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(userRewardAccount).WRITE()
 	return inst
 }
 
@@ -180,12 +166,12 @@ func (inst *UserUpdateRewardPoolsInstruction) MustFindUserRewardAccountAddress(r
 
 // GetUserRewardAccountAccount gets the "user_reward_account" account.
 func (inst *UserUpdateRewardPoolsInstruction) GetUserRewardAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
+	return inst.AccountMetaSlice.Get(3)
 }
 
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *UserUpdateRewardPoolsInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *UserUpdateRewardPoolsInstruction {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -233,18 +219,18 @@ func (inst *UserUpdateRewardPoolsInstruction) MustFindEventAuthorityAddress() (p
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *UserUpdateRewardPoolsInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(5)
+	return inst.AccountMetaSlice.Get(4)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *UserUpdateRewardPoolsInstruction) SetProgramAccount(program ag_solanago.PublicKey) *UserUpdateRewardPoolsInstruction {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *UserUpdateRewardPoolsInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(6)
+	return inst.AccountMetaSlice.Get(5)
 }
 
 func (inst UserUpdateRewardPoolsInstruction) Build() *Instruction {
@@ -271,21 +257,18 @@ func (inst *UserUpdateRewardPoolsInstruction) Validate() error {
 			return errors.New("accounts.User is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.SystemProgram is not set")
-		}
-		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.ReceiptTokenMint is not set")
 		}
-		if inst.AccountMetaSlice[3] == nil {
+		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.RewardAccount is not set")
 		}
-		if inst.AccountMetaSlice[4] == nil {
+		if inst.AccountMetaSlice[3] == nil {
 			return errors.New("accounts.UserRewardAccount is not set")
 		}
-		if inst.AccountMetaSlice[5] == nil {
+		if inst.AccountMetaSlice[4] == nil {
 			return errors.New("accounts.EventAuthority is not set")
 		}
-		if inst.AccountMetaSlice[6] == nil {
+		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -304,14 +287,13 @@ func (inst *UserUpdateRewardPoolsInstruction) EncodeToTree(parent ag_treeout.Bra
 					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=7]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Accounts[len=6]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
 						accountsBranch.Child(ag_format.Meta("              user", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("    system_program", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("receipt_token_mint", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("           reward_", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("      user_reward_", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("receipt_token_mint", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("           reward_", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("      user_reward_", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(5)))
 					})
 				})
 		})
@@ -328,7 +310,6 @@ func (obj *UserUpdateRewardPoolsInstruction) UnmarshalWithDecoder(decoder *ag_bi
 func NewUserUpdateRewardPoolsInstruction(
 	// Accounts:
 	user ag_solanago.PublicKey,
-	systemProgram ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
 	rewardAccount ag_solanago.PublicKey,
 	userRewardAccount ag_solanago.PublicKey,
@@ -336,7 +317,6 @@ func NewUserUpdateRewardPoolsInstruction(
 	program ag_solanago.PublicKey) *UserUpdateRewardPoolsInstruction {
 	return NewUserUpdateRewardPoolsInstructionBuilder().
 		SetUserAccount(user).
-		SetSystemProgramAccount(systemProgram).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetRewardAccountAccount(rewardAccount).
 		SetUserRewardAccountAccount(userRewardAccount).

@@ -66,15 +66,15 @@ var (
 		msg:  "reward: invalid metadata description length",
 		name: "RewardInvalidMetadataDescriptionLengthError",
 	}
-	ErrRewardInvalidRewardTypeError = &customErrorDef{
+	ErrRewardAlreadyClaimableError = &customErrorDef{
 		code: 6010,
-		msg:  "reward: invalid reward type",
-		name: "RewardInvalidRewardTypeError",
+		msg:  "reward: reward is already claimable",
+		name: "RewardAlreadyClaimableError",
 	}
-	ErrRewardAlreadyExistingHolderError = &customErrorDef{
+	ErrRewardNotEnoughRewardsToClaimError = &customErrorDef{
 		code: 6011,
-		msg:  "reward: already existing holder",
-		name: "RewardAlreadyExistingHolderError",
+		msg:  "reward: not enough rewards to claim",
+		name: "RewardNotEnoughRewardsToClaimError",
 	}
 	ErrRewardAlreadyExistingRewardError = &customErrorDef{
 		code: 6012,
@@ -86,10 +86,10 @@ var (
 		msg:  "reward: already existing pool",
 		name: "RewardAlreadyExistingPoolError",
 	}
-	ErrRewardHolderNotFoundError = &customErrorDef{
+	ErrRewardSettlementNotFoundError = &customErrorDef{
 		code: 6014,
-		msg:  "reward: holder not found",
-		name: "RewardHolderNotFoundError",
+		msg:  "reward: settlement not found",
+		name: "RewardSettlementNotFoundError",
 	}
 	ErrRewardNotFoundError = &customErrorDef{
 		code: 6015,
@@ -106,10 +106,10 @@ var (
 		msg:  "reward: user pool not found",
 		name: "RewardUserPoolNotFoundError",
 	}
-	ErrRewardPoolClosedError = &customErrorDef{
+	ErrRewardNotClaimableError = &customErrorDef{
 		code: 6018,
-		msg:  "reward: pool is closed",
-		name: "RewardPoolClosedError",
+		msg:  "reward: reward is not claimable",
+		name: "RewardNotClaimableError",
 	}
 	ErrRewardInvalidPoolConfigurationException = &customErrorDef{
 		code: 6019,
@@ -166,10 +166,10 @@ var (
 		msg:  "reward: exceeded max reward settlements per pool",
 		name: "RewardExceededMaxRewardSettlementError",
 	}
-	ErrRewardStaleSettlementBlockNotExistError = &customErrorDef{
+	ErrRewardExceededMaxRewardSettlementBlockError = &customErrorDef{
 		code: 6030,
-		msg:  "reward: stale settlement block not exist",
-		name: "RewardStaleSettlementBlockNotExistError",
+		msg:  "reward: exceeded max reward settlement block per settlement",
+		name: "RewardExceededMaxRewardSettlementBlockError",
 	}
 	ErrRewardInvalidSettlementBlockHeightException = &customErrorDef{
 		code: 6031,
@@ -298,7 +298,7 @@ var (
 	}
 	ErrFundExceededMaxRestakingVaultsError = &customErrorDef{
 		code: 6056,
-		msg:  "reward: exceeded max restaking vaults",
+		msg:  "fund: exceeded max restaking vaults",
 		name: "FundExceededMaxRestakingVaultsError",
 	}
 	ErrFundRestakingNotSupportedVaultError = &customErrorDef{
@@ -441,6 +441,81 @@ var (
 		msg:  "fund: token swap strategy not found",
 		name: "FundTokenSwapStrategyNotFoundError",
 	}
+	ErrFundRestakingVaultDistributingRewardTokenAlreadyRegisteredError = &customErrorDef{
+		code: 6085,
+		msg:  "fund: restaking vault distributing reward token already registered",
+		name: "FundRestakingVaultDistributingRewardTokenAlreadyRegisteredError",
+	}
+	ErrFundExceededMaxRestakingVaultDistributingRewardTokensError = &customErrorDef{
+		code: 6086,
+		msg:  "fund: exceeded max restaking vault distributing reward tokens",
+		name: "FundExceededMaxRestakingVaultDistributingRewardTokensError",
+	}
+	ErrFundExceededMaxWrappedTokenHoldersError = &customErrorDef{
+		code: 6087,
+		msg:  "fund: exceeded max wrapped token holders",
+		name: "FundExceededMaxWrappedTokenHoldersError",
+	}
+	ErrFundWrappedTokenHolderAlreadyRegisteredError = &customErrorDef{
+		code: 6088,
+		msg:  "fund: wrapped token holder already registered",
+		name: "FundWrappedTokenHolderAlreadyRegisteredError",
+	}
+	ErrFundWrappedTokenHolderNotFoundError = &customErrorDef{
+		code: 6089,
+		msg:  "fund: wrapped token holder not found",
+		name: "FundWrappedTokenHolderNotFoundError",
+	}
+	ErrRewardInvalidUserRewardAccountAuthorityError = &customErrorDef{
+		code: 6090,
+		msg:  "reward: user reward account authority must be either user or delegate",
+		name: "RewardInvalidUserRewardAccountAuthorityError",
+	}
+	ErrFundRestakingVaultCompoundingRewardTokenNotRegisteredError = &customErrorDef{
+		code: 6091,
+		msg:  "fund: restaking vault compounding reward token not registered",
+		name: "FundRestakingVaultCompoundingRewardTokenNotRegisteredError",
+	}
+	ErrFundRestakingVaultDistributingRewardTokenNotRegisteredError = &customErrorDef{
+		code: 6092,
+		msg:  "fund: restaking vault distributing reward token not registered",
+		name: "FundRestakingVaultDistributingRewardTokenNotRegisteredError",
+	}
+	ErrFundSupportedTokenInUseError = &customErrorDef{
+		code: 6093,
+		msg:  "fund: supported token still in use",
+		name: "FundSupportedTokenInUseError",
+	}
+	ErrFundExceededMaxPricingSourcesError = &customErrorDef{
+		code: 6094,
+		msg:  "fund: exceeded max pricing sources",
+		name: "FundExceededMaxPricingSourcesError",
+	}
+	ErrRestakingVaultAuthorityNotMatchedError = &customErrorDef{
+		code: 6095,
+		msg:  "restaking: vault authority not matched",
+		name: "RestakingVaultAuthorityNotMatchedError",
+	}
+	ErrFundRestakingVaultRewardTokenNotRegisteredError = &customErrorDef{
+		code: 6096,
+		msg:  "fund: restaking vault reward token not registered",
+		name: "FundRestakingVaultRewardTokenNotRegisteredError",
+	}
+	ErrFundOperationDisabledError = &customErrorDef{
+		code: 6097,
+		msg:  "fund: operation is disabled",
+		name: "FundOperationDisabledError",
+	}
+	ErrFundTokenSwapStrategyValidationError = &customErrorDef{
+		code: 6098,
+		msg:  "fund: token swap strategy validation failed",
+		name: "FundTokenSwapStrategyValidationError",
+	}
+	ErrUnexpectedPricingSourceError = &customErrorDef{
+		code: 6099,
+		msg:  "unexpected pricing source",
+		name: "UnexpectedPricingSourceError",
+	}
 	Errors = map[int]CustomError{
 		6000: ErrCalculationArithmeticException,
 		6001: ErrIndexOutOfBoundsException,
@@ -452,15 +527,15 @@ var (
 		6007: ErrRewardInvalidTransferArgsException,
 		6008: ErrRewardInvalidMetadataNameLengthError,
 		6009: ErrRewardInvalidMetadataDescriptionLengthError,
-		6010: ErrRewardInvalidRewardTypeError,
-		6011: ErrRewardAlreadyExistingHolderError,
+		6010: ErrRewardAlreadyClaimableError,
+		6011: ErrRewardNotEnoughRewardsToClaimError,
 		6012: ErrRewardAlreadyExistingRewardError,
 		6013: ErrRewardAlreadyExistingPoolError,
-		6014: ErrRewardHolderNotFoundError,
+		6014: ErrRewardSettlementNotFoundError,
 		6015: ErrRewardNotFoundError,
 		6016: ErrRewardPoolNotFoundError,
 		6017: ErrRewardUserPoolNotFoundError,
-		6018: ErrRewardPoolClosedError,
+		6018: ErrRewardNotClaimableError,
 		6019: ErrRewardInvalidPoolConfigurationException,
 		6020: ErrRewardInvalidPoolAccessException,
 		6021: ErrRewardInvalidAccountingException,
@@ -472,7 +547,7 @@ var (
 		6027: ErrRewardExceededMaxHolderPubkeysError,
 		6028: ErrRewardExceededMaxTokenAllocatedAmountRecordException,
 		6029: ErrRewardExceededMaxRewardSettlementError,
-		6030: ErrRewardStaleSettlementBlockNotExistError,
+		6030: ErrRewardExceededMaxRewardSettlementBlockError,
 		6031: ErrRewardInvalidSettlementBlockHeightException,
 		6032: ErrRewardInvalidSettlementBlockContributionException,
 		6033: ErrRewardInvalidTotalUserSettledAmountException,
@@ -527,6 +602,21 @@ var (
 		6082: ErrFundTokenSwapStrategyAlreadyRegistered,
 		6083: ErrFundExceededMaxTokenSwapStrategiesError,
 		6084: ErrFundTokenSwapStrategyNotFoundError,
+		6085: ErrFundRestakingVaultDistributingRewardTokenAlreadyRegisteredError,
+		6086: ErrFundExceededMaxRestakingVaultDistributingRewardTokensError,
+		6087: ErrFundExceededMaxWrappedTokenHoldersError,
+		6088: ErrFundWrappedTokenHolderAlreadyRegisteredError,
+		6089: ErrFundWrappedTokenHolderNotFoundError,
+		6090: ErrRewardInvalidUserRewardAccountAuthorityError,
+		6091: ErrFundRestakingVaultCompoundingRewardTokenNotRegisteredError,
+		6092: ErrFundRestakingVaultDistributingRewardTokenNotRegisteredError,
+		6093: ErrFundSupportedTokenInUseError,
+		6094: ErrFundExceededMaxPricingSourcesError,
+		6095: ErrRestakingVaultAuthorityNotMatchedError,
+		6096: ErrFundRestakingVaultRewardTokenNotRegisteredError,
+		6097: ErrFundOperationDisabledError,
+		6098: ErrFundTokenSwapStrategyValidationError,
+		6099: ErrUnexpectedPricingSourceError,
 	}
 )
 

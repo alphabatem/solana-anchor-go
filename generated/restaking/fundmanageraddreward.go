@@ -14,7 +14,10 @@ import (
 type FundManagerAddRewardInstruction struct {
 	Name        *string
 	Description *string
-	RewardType  *RewardType
+	Mint        *ag_solanago.PublicKey
+	Program     *ag_solanago.PublicKey
+	Decimals    *uint8
+	Claimable   *bool
 
 	// [0] = [SIGNER] fund_manager
 	//
@@ -22,22 +25,26 @@ type FundManagerAddRewardInstruction struct {
 	//
 	// [2] = [WRITE] reward_account
 	//
-	// [3] = [] reward_token_mint
+	// [3] = [] reward_reserve_account
 	//
-	// [4] = [] reward_token_program
+	// [4] = [] reward_token_mint
 	//
-	// [5] = [] event_authority
+	// [5] = [] reward_token_program
 	//
-	// [6] = [] program
+	// [6] = [] reward_token_reserve_account
+	//
+	// [7] = [] event_authority
+	//
+	// [8] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewFundManagerAddRewardInstructionBuilder creates a new `FundManagerAddRewardInstruction` instruction builder.
 func NewFundManagerAddRewardInstructionBuilder() *FundManagerAddRewardInstruction {
 	nd := &FundManagerAddRewardInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 7),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 9),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	return nd
 }
 
@@ -53,9 +60,27 @@ func (inst *FundManagerAddRewardInstruction) SetDescription(description string) 
 	return inst
 }
 
-// SetRewardType sets the "reward_type" parameter.
-func (inst *FundManagerAddRewardInstruction) SetRewardType(reward_type RewardType) *FundManagerAddRewardInstruction {
-	inst.RewardType = &reward_type
+// SetMint sets the "mint" parameter.
+func (inst *FundManagerAddRewardInstruction) SetMint(mint ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
+	inst.Mint = &mint
+	return inst
+}
+
+// SetProgram sets the "program" parameter.
+func (inst *FundManagerAddRewardInstruction) SetProgram(program ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
+	inst.Program = &program
+	return inst
+}
+
+// SetDecimals sets the "decimals" parameter.
+func (inst *FundManagerAddRewardInstruction) SetDecimals(decimals uint8) *FundManagerAddRewardInstruction {
+	inst.Decimals = &decimals
+	return inst
+}
+
+// SetClaimable sets the "claimable" parameter.
+func (inst *FundManagerAddRewardInstruction) SetClaimable(claimable bool) *FundManagerAddRewardInstruction {
+	inst.Claimable = &claimable
 	return inst
 }
 
@@ -136,31 +161,97 @@ func (inst *FundManagerAddRewardInstruction) GetRewardAccountAccount() *ag_solan
 	return inst.AccountMetaSlice.Get(2)
 }
 
+// SetRewardReserveAccountAccount sets the "reward_reserve_account" account.
+func (inst *FundManagerAddRewardInstruction) SetRewardReserveAccountAccount(rewardReserveAccount ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(rewardReserveAccount)
+	return inst
+}
+
+func (inst *FundManagerAddRewardInstruction) findFindRewardReserveAccountAddress(receiptTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+	var seeds [][]byte
+	// const: reward_reserve
+	seeds = append(seeds, []byte{byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64), byte(0x5f), byte(0x72), byte(0x65), byte(0x73), byte(0x65), byte(0x72), byte(0x76), byte(0x65)})
+	// path: receipt_token_mint
+	seeds = append(seeds, receiptTokenMint.Bytes())
+
+	if knownBumpSeed != 0 {
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
+		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
+	} else {
+		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
+	}
+	return
+}
+
+// FindRewardReserveAccountAddressWithBumpSeed calculates RewardReserveAccount account address with given seeds and a known bump seed.
+func (inst *FundManagerAddRewardInstruction) FindRewardReserveAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey, err error) {
+	pda, _, err = inst.findFindRewardReserveAccountAddress(receiptTokenMint, bumpSeed)
+	return
+}
+
+func (inst *FundManagerAddRewardInstruction) MustFindRewardReserveAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindRewardReserveAccountAddress(receiptTokenMint, bumpSeed)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+// FindRewardReserveAccountAddress finds RewardReserveAccount account address with given seeds.
+func (inst *FundManagerAddRewardInstruction) FindRewardReserveAccountAddress(receiptTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+	pda, bumpSeed, err = inst.findFindRewardReserveAccountAddress(receiptTokenMint, 0)
+	return
+}
+
+func (inst *FundManagerAddRewardInstruction) MustFindRewardReserveAccountAddress(receiptTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindRewardReserveAccountAddress(receiptTokenMint, 0)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+// GetRewardReserveAccountAccount gets the "reward_reserve_account" account.
+func (inst *FundManagerAddRewardInstruction) GetRewardReserveAccountAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(3)
+}
+
 // SetRewardTokenMintAccount sets the "reward_token_mint" account.
 func (inst *FundManagerAddRewardInstruction) SetRewardTokenMintAccount(rewardTokenMint ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(rewardTokenMint)
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(rewardTokenMint)
 	return inst
 }
 
 // GetRewardTokenMintAccount gets the "reward_token_mint" account (optional).
 func (inst *FundManagerAddRewardInstruction) GetRewardTokenMintAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
+	return inst.AccountMetaSlice.Get(4)
 }
 
 // SetRewardTokenProgramAccount sets the "reward_token_program" account.
 func (inst *FundManagerAddRewardInstruction) SetRewardTokenProgramAccount(rewardTokenProgram ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(rewardTokenProgram)
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(rewardTokenProgram)
 	return inst
 }
 
 // GetRewardTokenProgramAccount gets the "reward_token_program" account (optional).
 func (inst *FundManagerAddRewardInstruction) GetRewardTokenProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
+	return inst.AccountMetaSlice.Get(5)
+}
+
+// SetRewardTokenReserveAccountAccount sets the "reward_token_reserve_account" account.
+func (inst *FundManagerAddRewardInstruction) SetRewardTokenReserveAccountAccount(rewardTokenReserveAccount ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(rewardTokenReserveAccount)
+	return inst
+}
+
+// GetRewardTokenReserveAccountAccount gets the "reward_token_reserve_account" account (optional).
+func (inst *FundManagerAddRewardInstruction) GetRewardTokenReserveAccountAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(6)
 }
 
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *FundManagerAddRewardInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -208,18 +299,18 @@ func (inst *FundManagerAddRewardInstruction) MustFindEventAuthorityAddress() (pd
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *FundManagerAddRewardInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(5)
+	return inst.AccountMetaSlice.Get(7)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *FundManagerAddRewardInstruction) SetProgramAccount(program ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[8] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *FundManagerAddRewardInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(6)
+	return inst.AccountMetaSlice.Get(8)
 }
 
 func (inst FundManagerAddRewardInstruction) Build() *Instruction {
@@ -248,8 +339,17 @@ func (inst *FundManagerAddRewardInstruction) Validate() error {
 		if inst.Description == nil {
 			return errors.New("Description parameter is not set")
 		}
-		if inst.RewardType == nil {
-			return errors.New("RewardType parameter is not set")
+		if inst.Mint == nil {
+			return errors.New("Mint parameter is not set")
+		}
+		if inst.Program == nil {
+			return errors.New("Program parameter is not set")
+		}
+		if inst.Decimals == nil {
+			return errors.New("Decimals parameter is not set")
+		}
+		if inst.Claimable == nil {
+			return errors.New("Claimable parameter is not set")
 		}
 	}
 
@@ -264,15 +364,20 @@ func (inst *FundManagerAddRewardInstruction) Validate() error {
 		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.RewardAccount is not set")
 		}
+		if inst.AccountMetaSlice[3] == nil {
+			return errors.New("accounts.RewardReserveAccount is not set")
+		}
 
-		// [3] = RewardTokenMint is optional
+		// [4] = RewardTokenMint is optional
 
-		// [4] = RewardTokenProgram is optional
+		// [5] = RewardTokenProgram is optional
 
-		if inst.AccountMetaSlice[5] == nil {
+		// [6] = RewardTokenReserveAccount is optional
+
+		if inst.AccountMetaSlice[7] == nil {
 			return errors.New("accounts.EventAuthority is not set")
 		}
-		if inst.AccountMetaSlice[6] == nil {
+		if inst.AccountMetaSlice[8] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -288,21 +393,26 @@ func (inst *FundManagerAddRewardInstruction) EncodeToTree(parent ag_treeout.Bran
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=3]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Params[len=6]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
 						paramsBranch.Child(ag_format.Param("       Name", *inst.Name))
 						paramsBranch.Child(ag_format.Param("Description", *inst.Description))
-						paramsBranch.Child(ag_format.Param(" RewardType", inst.RewardType))
+						paramsBranch.Child(ag_format.Param("       Mint", *inst.Mint))
+						paramsBranch.Child(ag_format.Param("    Program", *inst.Program))
+						paramsBranch.Child(ag_format.Param("   Decimals", *inst.Decimals))
+						paramsBranch.Child(ag_format.Param("  Claimable", *inst.Claimable))
 					})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=7]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("        fund_manager", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("  receipt_token_mint", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("             reward_", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("   reward_token_mint", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("reward_token_program", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("     event_authority", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("             program", inst.AccountMetaSlice.Get(6)))
+					instructionBranch.Child("Accounts[len=9]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+						accountsBranch.Child(ag_format.Meta("         fund_manager", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("   receipt_token_mint", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("              reward_", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("      reward_reserve_", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("    reward_token_mint", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta(" reward_token_program", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("reward_token_reserve_", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("      event_authority", inst.AccountMetaSlice.Get(7)))
+						accountsBranch.Child(ag_format.Meta("              program", inst.AccountMetaSlice.Get(8)))
 					})
 				})
 		})
@@ -319,8 +429,23 @@ func (obj FundManagerAddRewardInstruction) MarshalWithEncoder(encoder *ag_binary
 	if err != nil {
 		return err
 	}
-	// Serialize `RewardType` param:
-	err = encoder.Encode(obj.RewardType)
+	// Serialize `Mint` param:
+	err = encoder.Encode(obj.Mint)
+	if err != nil {
+		return err
+	}
+	// Serialize `Program` param:
+	err = encoder.Encode(obj.Program)
+	if err != nil {
+		return err
+	}
+	// Serialize `Decimals` param:
+	err = encoder.Encode(obj.Decimals)
+	if err != nil {
+		return err
+	}
+	// Serialize `Claimable` param:
+	err = encoder.Encode(obj.Claimable)
 	if err != nil {
 		return err
 	}
@@ -337,8 +462,23 @@ func (obj *FundManagerAddRewardInstruction) UnmarshalWithDecoder(decoder *ag_bin
 	if err != nil {
 		return err
 	}
-	// Deserialize `RewardType`:
-	err = decoder.Decode(&obj.RewardType)
+	// Deserialize `Mint`:
+	err = decoder.Decode(&obj.Mint)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Program`:
+	err = decoder.Decode(&obj.Program)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Decimals`:
+	err = decoder.Decode(&obj.Decimals)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Claimable`:
+	err = decoder.Decode(&obj.Claimable)
 	if err != nil {
 		return err
 	}
@@ -350,24 +490,34 @@ func NewFundManagerAddRewardInstruction(
 	// Parameters:
 	name string,
 	description string,
-	reward_type RewardType,
+	mint ag_solanago.PublicKey,
+	program ag_solanago.PublicKey,
+	decimals uint8,
+	claimable bool,
 	// Accounts:
 	fundManager ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
 	rewardAccount ag_solanago.PublicKey,
+	rewardReserveAccount ag_solanago.PublicKey,
 	rewardTokenMint ag_solanago.PublicKey,
 	rewardTokenProgram ag_solanago.PublicKey,
+	rewardTokenReserveAccount ag_solanago.PublicKey,
 	eventAuthority ag_solanago.PublicKey,
-	program ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
+	programAccount ag_solanago.PublicKey) *FundManagerAddRewardInstruction {
 	return NewFundManagerAddRewardInstructionBuilder().
 		SetName(name).
 		SetDescription(description).
-		SetRewardType(reward_type).
+		SetMint(mint).
+		SetProgram(program).
+		SetDecimals(decimals).
+		SetClaimable(claimable).
 		SetFundManagerAccount(fundManager).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetRewardAccountAccount(rewardAccount).
+		SetRewardReserveAccountAccount(rewardReserveAccount).
 		SetRewardTokenMintAccount(rewardTokenMint).
 		SetRewardTokenProgramAccount(rewardTokenProgram).
+		SetRewardTokenReserveAccountAccount(rewardTokenReserveAccount).
 		SetEventAuthorityAccount(eventAuthority).
-		SetProgramAccount(program)
+		SetProgramAccount(programAccount)
 }

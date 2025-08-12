@@ -30,20 +30,22 @@ type AdminInitializeFundAccountInstruction struct {
 	//
 	// [6] = [] fund_receipt_token_lock_account
 	//
-	// [7] = [] fund_reserve_account
+	// [7] = [WRITE] fund_reserve_account
 	//
-	// [8] = [] event_authority
+	// [8] = [WRITE] fund_treasury_account
 	//
-	// [9] = [] program
+	// [9] = [] event_authority
+	//
+	// [10] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewAdminInitializeFundAccountInstructionBuilder creates a new `AdminInitializeFundAccountInstruction` instruction builder.
 func NewAdminInitializeFundAccountInstructionBuilder() *AdminInitializeFundAccountInstruction {
 	nd := &AdminInitializeFundAccountInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 10),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 11),
 	}
-	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["fragkamrANLvuZYQPcmPsCATQAabkqNGH6gxqqPG3aP"]).SIGNER()
+	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["9b2RSMDYskVvjVbwF4cVwEhZUaaaUgyYSxvESmnoS4LL"]).SIGNER()
 	nd.AccountMetaSlice[2] = ag_solanago.Meta(Addresses["11111111111111111111111111111111"])
 	nd.AccountMetaSlice[4] = ag_solanago.Meta(Addresses["TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"])
 	return nd
@@ -226,7 +228,7 @@ func (inst *AdminInitializeFundAccountInstruction) GetFundReceiptTokenLockAccoun
 
 // SetFundReserveAccountAccount sets the "fund_reserve_account" account.
 func (inst *AdminInitializeFundAccountInstruction) SetFundReserveAccountAccount(fundReserveAccount ag_solanago.PublicKey) *AdminInitializeFundAccountInstruction {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(fundReserveAccount)
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(fundReserveAccount).WRITE()
 	return inst
 }
 
@@ -279,9 +281,64 @@ func (inst *AdminInitializeFundAccountInstruction) GetFundReserveAccountAccount(
 	return inst.AccountMetaSlice.Get(7)
 }
 
+// SetFundTreasuryAccountAccount sets the "fund_treasury_account" account.
+func (inst *AdminInitializeFundAccountInstruction) SetFundTreasuryAccountAccount(fundTreasuryAccount ag_solanago.PublicKey) *AdminInitializeFundAccountInstruction {
+	inst.AccountMetaSlice[8] = ag_solanago.Meta(fundTreasuryAccount).WRITE()
+	return inst
+}
+
+func (inst *AdminInitializeFundAccountInstruction) findFindFundTreasuryAccountAddress(receiptTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+	var seeds [][]byte
+	// const: fund_treasury
+	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64), byte(0x5f), byte(0x74), byte(0x72), byte(0x65), byte(0x61), byte(0x73), byte(0x75), byte(0x72), byte(0x79)})
+	// path: receipt_token_mint
+	seeds = append(seeds, receiptTokenMint.Bytes())
+
+	if knownBumpSeed != 0 {
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
+		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
+	} else {
+		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
+	}
+	return
+}
+
+// FindFundTreasuryAccountAddressWithBumpSeed calculates FundTreasuryAccount account address with given seeds and a known bump seed.
+func (inst *AdminInitializeFundAccountInstruction) FindFundTreasuryAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey, err error) {
+	pda, _, err = inst.findFindFundTreasuryAccountAddress(receiptTokenMint, bumpSeed)
+	return
+}
+
+func (inst *AdminInitializeFundAccountInstruction) MustFindFundTreasuryAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindFundTreasuryAccountAddress(receiptTokenMint, bumpSeed)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+// FindFundTreasuryAccountAddress finds FundTreasuryAccount account address with given seeds.
+func (inst *AdminInitializeFundAccountInstruction) FindFundTreasuryAccountAddress(receiptTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+	pda, bumpSeed, err = inst.findFindFundTreasuryAccountAddress(receiptTokenMint, 0)
+	return
+}
+
+func (inst *AdminInitializeFundAccountInstruction) MustFindFundTreasuryAccountAddress(receiptTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindFundTreasuryAccountAddress(receiptTokenMint, 0)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+// GetFundTreasuryAccountAccount gets the "fund_treasury_account" account.
+func (inst *AdminInitializeFundAccountInstruction) GetFundTreasuryAccountAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(8)
+}
+
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *AdminInitializeFundAccountInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *AdminInitializeFundAccountInstruction {
-	inst.AccountMetaSlice[8] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[9] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -329,18 +386,18 @@ func (inst *AdminInitializeFundAccountInstruction) MustFindEventAuthorityAddress
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *AdminInitializeFundAccountInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(8)
+	return inst.AccountMetaSlice.Get(9)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *AdminInitializeFundAccountInstruction) SetProgramAccount(program ag_solanago.PublicKey) *AdminInitializeFundAccountInstruction {
-	inst.AccountMetaSlice[9] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[10] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *AdminInitializeFundAccountInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(9)
+	return inst.AccountMetaSlice.Get(10)
 }
 
 func (inst AdminInitializeFundAccountInstruction) Build() *Instruction {
@@ -388,9 +445,12 @@ func (inst *AdminInitializeFundAccountInstruction) Validate() error {
 			return errors.New("accounts.FundReserveAccount is not set")
 		}
 		if inst.AccountMetaSlice[8] == nil {
-			return errors.New("accounts.EventAuthority is not set")
+			return errors.New("accounts.FundTreasuryAccount is not set")
 		}
 		if inst.AccountMetaSlice[9] == nil {
+			return errors.New("accounts.EventAuthority is not set")
+		}
+		if inst.AccountMetaSlice[10] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -409,7 +469,7 @@ func (inst *AdminInitializeFundAccountInstruction) EncodeToTree(parent ag_treeou
 					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=10]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Accounts[len=11]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
 						accountsBranch.Child(ag_format.Meta("                   payer", inst.AccountMetaSlice.Get(0)))
 						accountsBranch.Child(ag_format.Meta("                   admin", inst.AccountMetaSlice.Get(1)))
 						accountsBranch.Child(ag_format.Meta("          system_program", inst.AccountMetaSlice.Get(2)))
@@ -418,8 +478,9 @@ func (inst *AdminInitializeFundAccountInstruction) EncodeToTree(parent ag_treeou
 						accountsBranch.Child(ag_format.Meta("                   fund_", inst.AccountMetaSlice.Get(5)))
 						accountsBranch.Child(ag_format.Meta("fund_receipt_token_lock_", inst.AccountMetaSlice.Get(6)))
 						accountsBranch.Child(ag_format.Meta("           fund_reserve_", inst.AccountMetaSlice.Get(7)))
-						accountsBranch.Child(ag_format.Meta("         event_authority", inst.AccountMetaSlice.Get(8)))
-						accountsBranch.Child(ag_format.Meta("                 program", inst.AccountMetaSlice.Get(9)))
+						accountsBranch.Child(ag_format.Meta("          fund_treasury_", inst.AccountMetaSlice.Get(8)))
+						accountsBranch.Child(ag_format.Meta("         event_authority", inst.AccountMetaSlice.Get(9)))
+						accountsBranch.Child(ag_format.Meta("                 program", inst.AccountMetaSlice.Get(10)))
 					})
 				})
 		})
@@ -443,6 +504,7 @@ func NewAdminInitializeFundAccountInstruction(
 	fundAccount ag_solanago.PublicKey,
 	fundReceiptTokenLockAccount ag_solanago.PublicKey,
 	fundReserveAccount ag_solanago.PublicKey,
+	fundTreasuryAccount ag_solanago.PublicKey,
 	eventAuthority ag_solanago.PublicKey,
 	program ag_solanago.PublicKey) *AdminInitializeFundAccountInstruction {
 	return NewAdminInitializeFundAccountInstructionBuilder().
@@ -454,6 +516,7 @@ func NewAdminInitializeFundAccountInstruction(
 		SetFundAccountAccount(fundAccount).
 		SetFundReceiptTokenLockAccountAccount(fundReceiptTokenLockAccount).
 		SetFundReserveAccountAccount(fundReserveAccount).
+		SetFundTreasuryAccountAccount(fundTreasuryAccount).
 		SetEventAuthorityAccount(eventAuthority).
 		SetProgramAccount(program)
 }

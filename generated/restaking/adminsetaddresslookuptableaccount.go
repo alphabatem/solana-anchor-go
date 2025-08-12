@@ -14,26 +14,24 @@ import (
 type AdminSetAddressLookupTableAccountInstruction struct {
 	AddressLookupTableAccount *ag_solanago.PublicKey `bin:"optional"`
 
-	// [0] = [SIGNER] payer
+	// [0] = [SIGNER] admin
 	//
-	// [1] = [SIGNER] admin
+	// [1] = [WRITE] fund_account
 	//
-	// [2] = [WRITE] fund_account
+	// [2] = [] receipt_token_mint
 	//
-	// [3] = [] receipt_token_mint
+	// [3] = [] event_authority
 	//
-	// [4] = [] event_authority
-	//
-	// [5] = [] program
+	// [4] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewAdminSetAddressLookupTableAccountInstructionBuilder creates a new `AdminSetAddressLookupTableAccountInstruction` instruction builder.
 func NewAdminSetAddressLookupTableAccountInstructionBuilder() *AdminSetAddressLookupTableAccountInstruction {
 	nd := &AdminSetAddressLookupTableAccountInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 6),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
 	}
-	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["fragkamrANLvuZYQPcmPsCATQAabkqNGH6gxqqPG3aP"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["9b2RSMDYskVvjVbwF4cVwEhZUaaaUgyYSxvESmnoS4LL"]).SIGNER()
 	return nd
 }
 
@@ -43,31 +41,20 @@ func (inst *AdminSetAddressLookupTableAccountInstruction) SetAddressLookupTableA
 	return inst
 }
 
-// SetPayerAccount sets the "payer" account.
-func (inst *AdminSetAddressLookupTableAccountInstruction) SetPayerAccount(payer ag_solanago.PublicKey) *AdminSetAddressLookupTableAccountInstruction {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(payer).SIGNER()
-	return inst
-}
-
-// GetPayerAccount gets the "payer" account.
-func (inst *AdminSetAddressLookupTableAccountInstruction) GetPayerAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(0)
-}
-
 // SetAdminAccount sets the "admin" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) SetAdminAccount(admin ag_solanago.PublicKey) *AdminSetAddressLookupTableAccountInstruction {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(admin).SIGNER()
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(admin).SIGNER()
 	return inst
 }
 
 // GetAdminAccount gets the "admin" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) GetAdminAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(1)
+	return inst.AccountMetaSlice.Get(0)
 }
 
 // SetFundAccountAccount sets the "fund_account" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) SetFundAccountAccount(fundAccount ag_solanago.PublicKey) *AdminSetAddressLookupTableAccountInstruction {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(fundAccount).WRITE()
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(fundAccount).WRITE()
 	return inst
 }
 
@@ -117,23 +104,23 @@ func (inst *AdminSetAddressLookupTableAccountInstruction) MustFindFundAccountAdd
 
 // GetFundAccountAccount gets the "fund_account" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) GetFundAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(2)
+	return inst.AccountMetaSlice.Get(1)
 }
 
 // SetReceiptTokenMintAccount sets the "receipt_token_mint" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) SetReceiptTokenMintAccount(receiptTokenMint ag_solanago.PublicKey) *AdminSetAddressLookupTableAccountInstruction {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(receiptTokenMint)
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(receiptTokenMint)
 	return inst
 }
 
 // GetReceiptTokenMintAccount gets the "receipt_token_mint" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) GetReceiptTokenMintAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
+	return inst.AccountMetaSlice.Get(2)
 }
 
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *AdminSetAddressLookupTableAccountInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -181,18 +168,18 @@ func (inst *AdminSetAddressLookupTableAccountInstruction) MustFindEventAuthority
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
+	return inst.AccountMetaSlice.Get(3)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) SetProgramAccount(program ag_solanago.PublicKey) *AdminSetAddressLookupTableAccountInstruction {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *AdminSetAddressLookupTableAccountInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(5)
+	return inst.AccountMetaSlice.Get(4)
 }
 
 func (inst AdminSetAddressLookupTableAccountInstruction) Build() *Instruction {
@@ -220,21 +207,18 @@ func (inst *AdminSetAddressLookupTableAccountInstruction) Validate() error {
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.Payer is not set")
-		}
-		if inst.AccountMetaSlice[1] == nil {
 			return errors.New("accounts.Admin is not set")
 		}
-		if inst.AccountMetaSlice[2] == nil {
+		if inst.AccountMetaSlice[1] == nil {
 			return errors.New("accounts.FundAccount is not set")
 		}
-		if inst.AccountMetaSlice[3] == nil {
+		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.ReceiptTokenMint is not set")
 		}
-		if inst.AccountMetaSlice[4] == nil {
+		if inst.AccountMetaSlice[3] == nil {
 			return errors.New("accounts.EventAuthority is not set")
 		}
-		if inst.AccountMetaSlice[5] == nil {
+		if inst.AccountMetaSlice[4] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -255,13 +239,12 @@ func (inst *AdminSetAddressLookupTableAccountInstruction) EncodeToTree(parent ag
 					})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=6]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("             payer", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("             admin", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("             fund_", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("receipt_token_mint", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(5)))
+					instructionBranch.Child("Accounts[len=5]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+						accountsBranch.Child(ag_format.Meta("             admin", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("             fund_", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("receipt_token_mint", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(4)))
 					})
 				})
 		})
@@ -310,7 +293,6 @@ func NewAdminSetAddressLookupTableAccountInstruction(
 	// Parameters:
 	address_lookup_table_account ag_solanago.PublicKey,
 	// Accounts:
-	payer ag_solanago.PublicKey,
 	admin ag_solanago.PublicKey,
 	fundAccount ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
@@ -318,7 +300,6 @@ func NewAdminSetAddressLookupTableAccountInstruction(
 	program ag_solanago.PublicKey) *AdminSetAddressLookupTableAccountInstruction {
 	return NewAdminSetAddressLookupTableAccountInstructionBuilder().
 		SetAddressLookupTableAccount(address_lookup_table_account).
-		SetPayerAccount(payer).
 		SetAdminAccount(admin).
 		SetFundAccountAccount(fundAccount).
 		SetReceiptTokenMintAccount(receiptTokenMint).

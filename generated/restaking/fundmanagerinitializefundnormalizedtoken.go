@@ -25,26 +25,23 @@ type FundManagerInitializeFundNormalizedTokenInstruction struct {
 	//
 	// [5] = [] normalized_token_mint
 	//
-	// [6] = [] normalized_token_program
+	// [6] = [] fund_normalized_token_reserve_account
 	//
-	// [7] = [] fund_normalized_token_reserve_account
+	// [7] = [] normalized_token_pool_account
 	//
-	// [8] = [] normalized_token_pool_account
+	// [8] = [] event_authority
 	//
-	// [9] = [] event_authority
-	//
-	// [10] = [] program
+	// [9] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewFundManagerInitializeFundNormalizedTokenInstructionBuilder creates a new `FundManagerInitializeFundNormalizedTokenInstruction` instruction builder.
 func NewFundManagerInitializeFundNormalizedTokenInstructionBuilder() *FundManagerInitializeFundNormalizedTokenInstruction {
 	nd := &FundManagerInitializeFundNormalizedTokenInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 11),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 10),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["11111111111111111111111111111111"])
-	nd.AccountMetaSlice[6] = ag_solanago.Meta(Addresses["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"])
 	return nd
 }
 
@@ -202,29 +199,18 @@ func (inst *FundManagerInitializeFundNormalizedTokenInstruction) GetNormalizedTo
 	return inst.AccountMetaSlice.Get(5)
 }
 
-// SetNormalizedTokenProgramAccount sets the "normalized_token_program" account.
-func (inst *FundManagerInitializeFundNormalizedTokenInstruction) SetNormalizedTokenProgramAccount(normalizedTokenProgram ag_solanago.PublicKey) *FundManagerInitializeFundNormalizedTokenInstruction {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(normalizedTokenProgram)
-	return inst
-}
-
-// GetNormalizedTokenProgramAccount gets the "normalized_token_program" account.
-func (inst *FundManagerInitializeFundNormalizedTokenInstruction) GetNormalizedTokenProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(6)
-}
-
 // SetFundNormalizedTokenReserveAccountAccount sets the "fund_normalized_token_reserve_account" account.
 func (inst *FundManagerInitializeFundNormalizedTokenInstruction) SetFundNormalizedTokenReserveAccountAccount(fundNormalizedTokenReserveAccount ag_solanago.PublicKey) *FundManagerInitializeFundNormalizedTokenInstruction {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(fundNormalizedTokenReserveAccount)
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(fundNormalizedTokenReserveAccount)
 	return inst
 }
 
-func (inst *FundManagerInitializeFundNormalizedTokenInstruction) findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount ag_solanago.PublicKey, normalizedTokenProgram ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+func (inst *FundManagerInitializeFundNormalizedTokenInstruction) findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
 	// path: fund_reserve_account
 	seeds = append(seeds, fundReserveAccount.Bytes())
-	// path: normalized_token_program
-	seeds = append(seeds, normalizedTokenProgram.Bytes())
+	// const (raw): [6 221 246 225 215 101 161 147 217 203 225 70 206 235 121 172 28 180 133 237 95 91 55 145 58 140 245 133 126 255 0 169]
+	seeds = append(seeds, []byte{byte(0x6), byte(0xdd), byte(0xf6), byte(0xe1), byte(0xd7), byte(0x65), byte(0xa1), byte(0x93), byte(0xd9), byte(0xcb), byte(0xe1), byte(0x46), byte(0xce), byte(0xeb), byte(0x79), byte(0xac), byte(0x1c), byte(0xb4), byte(0x85), byte(0xed), byte(0x5f), byte(0x5b), byte(0x37), byte(0x91), byte(0x3a), byte(0x8c), byte(0xf5), byte(0x85), byte(0x7e), byte(0xff), byte(0x0), byte(0xa9)})
 	// path: normalized_token_mint
 	seeds = append(seeds, normalizedTokenMint.Bytes())
 
@@ -240,13 +226,13 @@ func (inst *FundManagerInitializeFundNormalizedTokenInstruction) findFindFundNor
 }
 
 // FindFundNormalizedTokenReserveAccountAddressWithBumpSeed calculates FundNormalizedTokenReserveAccount account address with given seeds and a known bump seed.
-func (inst *FundManagerInitializeFundNormalizedTokenInstruction) FindFundNormalizedTokenReserveAccountAddressWithBumpSeed(fundReserveAccount ag_solanago.PublicKey, normalizedTokenProgram ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey, err error) {
-	pda, _, err = inst.findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount, normalizedTokenProgram, normalizedTokenMint, bumpSeed)
+func (inst *FundManagerInitializeFundNormalizedTokenInstruction) FindFundNormalizedTokenReserveAccountAddressWithBumpSeed(fundReserveAccount ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey, err error) {
+	pda, _, err = inst.findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount, normalizedTokenMint, bumpSeed)
 	return
 }
 
-func (inst *FundManagerInitializeFundNormalizedTokenInstruction) MustFindFundNormalizedTokenReserveAccountAddressWithBumpSeed(fundReserveAccount ag_solanago.PublicKey, normalizedTokenProgram ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey) {
-	pda, _, err := inst.findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount, normalizedTokenProgram, normalizedTokenMint, bumpSeed)
+func (inst *FundManagerInitializeFundNormalizedTokenInstruction) MustFindFundNormalizedTokenReserveAccountAddressWithBumpSeed(fundReserveAccount ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount, normalizedTokenMint, bumpSeed)
 	if err != nil {
 		panic(err)
 	}
@@ -254,13 +240,13 @@ func (inst *FundManagerInitializeFundNormalizedTokenInstruction) MustFindFundNor
 }
 
 // FindFundNormalizedTokenReserveAccountAddress finds FundNormalizedTokenReserveAccount account address with given seeds.
-func (inst *FundManagerInitializeFundNormalizedTokenInstruction) FindFundNormalizedTokenReserveAccountAddress(fundReserveAccount ag_solanago.PublicKey, normalizedTokenProgram ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
-	pda, bumpSeed, err = inst.findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount, normalizedTokenProgram, normalizedTokenMint, 0)
+func (inst *FundManagerInitializeFundNormalizedTokenInstruction) FindFundNormalizedTokenReserveAccountAddress(fundReserveAccount ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+	pda, bumpSeed, err = inst.findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount, normalizedTokenMint, 0)
 	return
 }
 
-func (inst *FundManagerInitializeFundNormalizedTokenInstruction) MustFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount ag_solanago.PublicKey, normalizedTokenProgram ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey) {
-	pda, _, err := inst.findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount, normalizedTokenProgram, normalizedTokenMint, 0)
+func (inst *FundManagerInitializeFundNormalizedTokenInstruction) MustFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount ag_solanago.PublicKey, normalizedTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindFundNormalizedTokenReserveAccountAddress(fundReserveAccount, normalizedTokenMint, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -269,12 +255,12 @@ func (inst *FundManagerInitializeFundNormalizedTokenInstruction) MustFindFundNor
 
 // GetFundNormalizedTokenReserveAccountAccount gets the "fund_normalized_token_reserve_account" account.
 func (inst *FundManagerInitializeFundNormalizedTokenInstruction) GetFundNormalizedTokenReserveAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(7)
+	return inst.AccountMetaSlice.Get(6)
 }
 
 // SetNormalizedTokenPoolAccountAccount sets the "normalized_token_pool_account" account.
 func (inst *FundManagerInitializeFundNormalizedTokenInstruction) SetNormalizedTokenPoolAccountAccount(normalizedTokenPoolAccount ag_solanago.PublicKey) *FundManagerInitializeFundNormalizedTokenInstruction {
-	inst.AccountMetaSlice[8] = ag_solanago.Meta(normalizedTokenPoolAccount)
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(normalizedTokenPoolAccount)
 	return inst
 }
 
@@ -324,12 +310,12 @@ func (inst *FundManagerInitializeFundNormalizedTokenInstruction) MustFindNormali
 
 // GetNormalizedTokenPoolAccountAccount gets the "normalized_token_pool_account" account.
 func (inst *FundManagerInitializeFundNormalizedTokenInstruction) GetNormalizedTokenPoolAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(8)
+	return inst.AccountMetaSlice.Get(7)
 }
 
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *FundManagerInitializeFundNormalizedTokenInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *FundManagerInitializeFundNormalizedTokenInstruction {
-	inst.AccountMetaSlice[9] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[8] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -377,18 +363,18 @@ func (inst *FundManagerInitializeFundNormalizedTokenInstruction) MustFindEventAu
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *FundManagerInitializeFundNormalizedTokenInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(9)
+	return inst.AccountMetaSlice.Get(8)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *FundManagerInitializeFundNormalizedTokenInstruction) SetProgramAccount(program ag_solanago.PublicKey) *FundManagerInitializeFundNormalizedTokenInstruction {
-	inst.AccountMetaSlice[10] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[9] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *FundManagerInitializeFundNormalizedTokenInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(10)
+	return inst.AccountMetaSlice.Get(9)
 }
 
 func (inst FundManagerInitializeFundNormalizedTokenInstruction) Build() *Instruction {
@@ -430,18 +416,15 @@ func (inst *FundManagerInitializeFundNormalizedTokenInstruction) Validate() erro
 			return errors.New("accounts.NormalizedTokenMint is not set")
 		}
 		if inst.AccountMetaSlice[6] == nil {
-			return errors.New("accounts.NormalizedTokenProgram is not set")
-		}
-		if inst.AccountMetaSlice[7] == nil {
 			return errors.New("accounts.FundNormalizedTokenReserveAccount is not set")
 		}
-		if inst.AccountMetaSlice[8] == nil {
+		if inst.AccountMetaSlice[7] == nil {
 			return errors.New("accounts.NormalizedTokenPoolAccount is not set")
 		}
-		if inst.AccountMetaSlice[9] == nil {
+		if inst.AccountMetaSlice[8] == nil {
 			return errors.New("accounts.EventAuthority is not set")
 		}
-		if inst.AccountMetaSlice[10] == nil {
+		if inst.AccountMetaSlice[9] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -460,18 +443,17 @@ func (inst *FundManagerInitializeFundNormalizedTokenInstruction) EncodeToTree(pa
 					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=11]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Accounts[len=10]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
 						accountsBranch.Child(ag_format.Meta("                  fund_manager", inst.AccountMetaSlice.Get(0)))
 						accountsBranch.Child(ag_format.Meta("                system_program", inst.AccountMetaSlice.Get(1)))
 						accountsBranch.Child(ag_format.Meta("                         fund_", inst.AccountMetaSlice.Get(2)))
 						accountsBranch.Child(ag_format.Meta("                 fund_reserve_", inst.AccountMetaSlice.Get(3)))
 						accountsBranch.Child(ag_format.Meta("            receipt_token_mint", inst.AccountMetaSlice.Get(4)))
 						accountsBranch.Child(ag_format.Meta("         normalized_token_mint", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("      normalized_token_program", inst.AccountMetaSlice.Get(6)))
-						accountsBranch.Child(ag_format.Meta("fund_normalized_token_reserve_", inst.AccountMetaSlice.Get(7)))
-						accountsBranch.Child(ag_format.Meta("        normalized_token_pool_", inst.AccountMetaSlice.Get(8)))
-						accountsBranch.Child(ag_format.Meta("               event_authority", inst.AccountMetaSlice.Get(9)))
-						accountsBranch.Child(ag_format.Meta("                       program", inst.AccountMetaSlice.Get(10)))
+						accountsBranch.Child(ag_format.Meta("fund_normalized_token_reserve_", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("        normalized_token_pool_", inst.AccountMetaSlice.Get(7)))
+						accountsBranch.Child(ag_format.Meta("               event_authority", inst.AccountMetaSlice.Get(8)))
+						accountsBranch.Child(ag_format.Meta("                       program", inst.AccountMetaSlice.Get(9)))
 					})
 				})
 		})
@@ -493,7 +475,6 @@ func NewFundManagerInitializeFundNormalizedTokenInstruction(
 	fundReserveAccount ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
 	normalizedTokenMint ag_solanago.PublicKey,
-	normalizedTokenProgram ag_solanago.PublicKey,
 	fundNormalizedTokenReserveAccount ag_solanago.PublicKey,
 	normalizedTokenPoolAccount ag_solanago.PublicKey,
 	eventAuthority ag_solanago.PublicKey,
@@ -505,7 +486,6 @@ func NewFundManagerInitializeFundNormalizedTokenInstruction(
 		SetFundReserveAccountAccount(fundReserveAccount).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetNormalizedTokenMintAccount(normalizedTokenMint).
-		SetNormalizedTokenProgramAccount(normalizedTokenProgram).
 		SetFundNormalizedTokenReserveAccountAccount(fundNormalizedTokenReserveAccount).
 		SetNormalizedTokenPoolAccountAccount(normalizedTokenPoolAccount).
 		SetEventAuthorityAccount(eventAuthority).

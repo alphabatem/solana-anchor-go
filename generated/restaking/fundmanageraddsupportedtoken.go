@@ -43,7 +43,7 @@ func NewFundManagerAddSupportedTokenInstructionBuilder() *FundManagerAddSupporte
 	nd := &FundManagerAddSupportedTokenInstruction{
 		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 11),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	return nd
 }
 

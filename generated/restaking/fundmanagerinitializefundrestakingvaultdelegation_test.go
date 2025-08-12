@@ -10,18 +10,18 @@ import (
 	"testing"
 )
 
-func TestEncodeDecode_FundManagerAddRewardPoolHolder(t *testing.T) {
+func TestEncodeDecode_FundManagerInitializeFundRestakingVaultDelegation(t *testing.T) {
 	fu := ag_gofuzz.New().NilChance(0)
 	for i := 0; i < 1; i++ {
-		t.Run("FundManagerAddRewardPoolHolder"+strconv.Itoa(i), func(t *testing.T) {
+		t.Run("FundManagerInitializeFundRestakingVaultDelegation"+strconv.Itoa(i), func(t *testing.T) {
 			{
-				params := new(FundManagerAddRewardPoolHolderInstruction)
+				params := new(FundManagerInitializeFundRestakingVaultDelegationInstruction)
 				fu.Fuzz(params)
 				params.AccountMetaSlice = nil
 				buf := new(bytes.Buffer)
 				err := encodeT(*params, buf)
 				ag_require.NoError(t, err)
-				got := new(FundManagerAddRewardPoolHolderInstruction)
+				got := new(FundManagerInitializeFundRestakingVaultDelegationInstruction)
 				err = decodeT(got, buf.Bytes())
 				got.AccountMetaSlice = nil
 				ag_require.NoError(t, err)

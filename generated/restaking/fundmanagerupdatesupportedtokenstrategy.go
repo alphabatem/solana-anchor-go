@@ -19,7 +19,6 @@ type FundManagerUpdateSupportedTokenStrategyInstruction struct {
 	TokenWithdrawable                     *bool
 	TokenWithdrawalNormalReserveRateBps   *uint16
 	TokenWithdrawalNormalReserveMaxAmount *uint64
-	TokenRebalancingAmount                *uint64 `bin:"optional"`
 	SolAllocationWeight                   *uint64
 	SolAllocationCapacityAmount           *uint64
 
@@ -40,7 +39,7 @@ func NewFundManagerUpdateSupportedTokenStrategyInstructionBuilder() *FundManager
 	nd := &FundManagerUpdateSupportedTokenStrategyInstruction{
 		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	return nd
 }
 
@@ -83,12 +82,6 @@ func (inst *FundManagerUpdateSupportedTokenStrategyInstruction) SetTokenWithdraw
 // SetTokenWithdrawalNormalReserveMaxAmount sets the "token_withdrawal_normal_reserve_max_amount" parameter.
 func (inst *FundManagerUpdateSupportedTokenStrategyInstruction) SetTokenWithdrawalNormalReserveMaxAmount(token_withdrawal_normal_reserve_max_amount uint64) *FundManagerUpdateSupportedTokenStrategyInstruction {
 	inst.TokenWithdrawalNormalReserveMaxAmount = &token_withdrawal_normal_reserve_max_amount
-	return inst
-}
-
-// SetTokenRebalancingAmount sets the "token_rebalancing_amount" parameter.
-func (inst *FundManagerUpdateSupportedTokenStrategyInstruction) SetTokenRebalancingAmount(token_rebalancing_amount uint64) *FundManagerUpdateSupportedTokenStrategyInstruction {
-	inst.TokenRebalancingAmount = &token_rebalancing_amount
 	return inst
 }
 
@@ -321,7 +314,7 @@ func (inst *FundManagerUpdateSupportedTokenStrategyInstruction) EncodeToTree(par
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=10]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Params[len=9]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
 						paramsBranch.Child(ag_format.Param("                                 TokenMint", *inst.TokenMint))
 						paramsBranch.Child(ag_format.Param("                          TokenDepositable", *inst.TokenDepositable))
 						paramsBranch.Child(ag_format.Param("     TokenAccumulatedDepositCapacityAmount", *inst.TokenAccumulatedDepositCapacityAmount))
@@ -329,7 +322,6 @@ func (inst *FundManagerUpdateSupportedTokenStrategyInstruction) EncodeToTree(par
 						paramsBranch.Child(ag_format.Param("                         TokenWithdrawable", *inst.TokenWithdrawable))
 						paramsBranch.Child(ag_format.Param("       TokenWithdrawalNormalReserveRateBps", *inst.TokenWithdrawalNormalReserveRateBps))
 						paramsBranch.Child(ag_format.Param("     TokenWithdrawalNormalReserveMaxAmount", *inst.TokenWithdrawalNormalReserveMaxAmount))
-						paramsBranch.Child(ag_format.Param("                    TokenRebalancingAmount (OPT)", inst.TokenRebalancingAmount))
 						paramsBranch.Child(ag_format.Param("                       SolAllocationWeight", *inst.SolAllocationWeight))
 						paramsBranch.Child(ag_format.Param("               SolAllocationCapacityAmount", *inst.SolAllocationCapacityAmount))
 					})
@@ -395,24 +387,6 @@ func (obj FundManagerUpdateSupportedTokenStrategyInstruction) MarshalWithEncoder
 	if err != nil {
 		return err
 	}
-	// Serialize `TokenRebalancingAmount` param (optional):
-	{
-		if obj.TokenRebalancingAmount == nil {
-			err = encoder.WriteBool(false)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = encoder.WriteBool(true)
-			if err != nil {
-				return err
-			}
-			err = encoder.Encode(obj.TokenRebalancingAmount)
-			if err != nil {
-				return err
-			}
-		}
-	}
 	// Serialize `SolAllocationWeight` param:
 	err = encoder.Encode(obj.SolAllocationWeight)
 	if err != nil {
@@ -469,19 +443,6 @@ func (obj *FundManagerUpdateSupportedTokenStrategyInstruction) UnmarshalWithDeco
 	if err != nil {
 		return err
 	}
-	// Deserialize `TokenRebalancingAmount` (optional):
-	{
-		ok, err := decoder.ReadBool()
-		if err != nil {
-			return err
-		}
-		if ok {
-			err = decoder.Decode(&obj.TokenRebalancingAmount)
-			if err != nil {
-				return err
-			}
-		}
-	}
 	// Deserialize `SolAllocationWeight`:
 	err = decoder.Decode(&obj.SolAllocationWeight)
 	if err != nil {
@@ -505,7 +466,6 @@ func NewFundManagerUpdateSupportedTokenStrategyInstruction(
 	token_withdrawable bool,
 	token_withdrawal_normal_reserve_rate_bps uint16,
 	token_withdrawal_normal_reserve_max_amount uint64,
-	token_rebalancing_amount uint64,
 	sol_allocation_weight uint64,
 	sol_allocation_capacity_amount uint64,
 	// Accounts:
@@ -522,7 +482,6 @@ func NewFundManagerUpdateSupportedTokenStrategyInstruction(
 		SetTokenWithdrawable(token_withdrawable).
 		SetTokenWithdrawalNormalReserveRateBps(token_withdrawal_normal_reserve_rate_bps).
 		SetTokenWithdrawalNormalReserveMaxAmount(token_withdrawal_normal_reserve_max_amount).
-		SetTokenRebalancingAmount(token_rebalancing_amount).
 		SetSolAllocationWeight(sol_allocation_weight).
 		SetSolAllocationCapacityAmount(sol_allocation_capacity_amount).
 		SetFundManagerAccount(fundManager).

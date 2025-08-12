@@ -21,25 +21,22 @@ type OperatorDonateSolToFundInstruction struct {
 	//
 	// [2] = [] receipt_token_mint
 	//
-	// [3] = [] receipt_token_program
+	// [3] = [WRITE] fund_account
 	//
-	// [4] = [WRITE] fund_account
+	// [4] = [WRITE] fund_reserve_account
 	//
-	// [5] = [WRITE] fund_reserve_account
+	// [5] = [] event_authority
 	//
-	// [6] = [] event_authority
-	//
-	// [7] = [] program
+	// [6] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewOperatorDonateSolToFundInstructionBuilder creates a new `OperatorDonateSolToFundInstruction` instruction builder.
 func NewOperatorDonateSolToFundInstructionBuilder() *OperatorDonateSolToFundInstruction {
 	nd := &OperatorDonateSolToFundInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 8),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 7),
 	}
 	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["11111111111111111111111111111111"])
-	nd.AccountMetaSlice[3] = ag_solanago.Meta(Addresses["TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"])
 	return nd
 }
 
@@ -88,20 +85,9 @@ func (inst *OperatorDonateSolToFundInstruction) GetReceiptTokenMintAccount() *ag
 	return inst.AccountMetaSlice.Get(2)
 }
 
-// SetReceiptTokenProgramAccount sets the "receipt_token_program" account.
-func (inst *OperatorDonateSolToFundInstruction) SetReceiptTokenProgramAccount(receiptTokenProgram ag_solanago.PublicKey) *OperatorDonateSolToFundInstruction {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(receiptTokenProgram)
-	return inst
-}
-
-// GetReceiptTokenProgramAccount gets the "receipt_token_program" account.
-func (inst *OperatorDonateSolToFundInstruction) GetReceiptTokenProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
-}
-
 // SetFundAccountAccount sets the "fund_account" account.
 func (inst *OperatorDonateSolToFundInstruction) SetFundAccountAccount(fundAccount ag_solanago.PublicKey) *OperatorDonateSolToFundInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(fundAccount).WRITE()
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(fundAccount).WRITE()
 	return inst
 }
 
@@ -151,12 +137,12 @@ func (inst *OperatorDonateSolToFundInstruction) MustFindFundAccountAddress(recei
 
 // GetFundAccountAccount gets the "fund_account" account.
 func (inst *OperatorDonateSolToFundInstruction) GetFundAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
+	return inst.AccountMetaSlice.Get(3)
 }
 
 // SetFundReserveAccountAccount sets the "fund_reserve_account" account.
 func (inst *OperatorDonateSolToFundInstruction) SetFundReserveAccountAccount(fundReserveAccount ag_solanago.PublicKey) *OperatorDonateSolToFundInstruction {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(fundReserveAccount).WRITE()
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(fundReserveAccount).WRITE()
 	return inst
 }
 
@@ -206,12 +192,12 @@ func (inst *OperatorDonateSolToFundInstruction) MustFindFundReserveAccountAddres
 
 // GetFundReserveAccountAccount gets the "fund_reserve_account" account.
 func (inst *OperatorDonateSolToFundInstruction) GetFundReserveAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(5)
+	return inst.AccountMetaSlice.Get(4)
 }
 
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *OperatorDonateSolToFundInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *OperatorDonateSolToFundInstruction {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -259,18 +245,18 @@ func (inst *OperatorDonateSolToFundInstruction) MustFindEventAuthorityAddress() 
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *OperatorDonateSolToFundInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(6)
+	return inst.AccountMetaSlice.Get(5)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *OperatorDonateSolToFundInstruction) SetProgramAccount(program ag_solanago.PublicKey) *OperatorDonateSolToFundInstruction {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *OperatorDonateSolToFundInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(7)
+	return inst.AccountMetaSlice.Get(6)
 }
 
 func (inst OperatorDonateSolToFundInstruction) Build() *Instruction {
@@ -313,18 +299,15 @@ func (inst *OperatorDonateSolToFundInstruction) Validate() error {
 			return errors.New("accounts.ReceiptTokenMint is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.ReceiptTokenProgram is not set")
-		}
-		if inst.AccountMetaSlice[4] == nil {
 			return errors.New("accounts.FundAccount is not set")
 		}
-		if inst.AccountMetaSlice[5] == nil {
+		if inst.AccountMetaSlice[4] == nil {
 			return errors.New("accounts.FundReserveAccount is not set")
 		}
-		if inst.AccountMetaSlice[6] == nil {
+		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.EventAuthority is not set")
 		}
-		if inst.AccountMetaSlice[7] == nil {
+		if inst.AccountMetaSlice[6] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -346,15 +329,14 @@ func (inst *OperatorDonateSolToFundInstruction) EncodeToTree(parent ag_treeout.B
 					})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=8]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("             operator", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("       system_program", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("   receipt_token_mint", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("receipt_token_program", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("                fund_", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("        fund_reserve_", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("      event_authority", inst.AccountMetaSlice.Get(6)))
-						accountsBranch.Child(ag_format.Meta("              program", inst.AccountMetaSlice.Get(7)))
+					instructionBranch.Child("Accounts[len=7]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+						accountsBranch.Child(ag_format.Meta("          operator", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("    system_program", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("receipt_token_mint", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("             fund_", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("     fund_reserve_", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(6)))
 					})
 				})
 		})
@@ -396,7 +378,6 @@ func NewOperatorDonateSolToFundInstruction(
 	operator ag_solanago.PublicKey,
 	systemProgram ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
-	receiptTokenProgram ag_solanago.PublicKey,
 	fundAccount ag_solanago.PublicKey,
 	fundReserveAccount ag_solanago.PublicKey,
 	eventAuthority ag_solanago.PublicKey,
@@ -407,7 +388,6 @@ func NewOperatorDonateSolToFundInstruction(
 		SetOperatorAccount(operator).
 		SetSystemProgramAccount(systemProgram).
 		SetReceiptTokenMintAccount(receiptTokenMint).
-		SetReceiptTokenProgramAccount(receiptTokenProgram).
 		SetFundAccountAccount(fundAccount).
 		SetFundReserveAccountAccount(fundReserveAccount).
 		SetEventAuthorityAccount(eventAuthority).

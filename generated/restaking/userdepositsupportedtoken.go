@@ -15,7 +15,7 @@ type UserDepositSupportedTokenInstruction struct {
 	Amount   *uint64
 	Metadata *DepositMetadata `bin:"optional"`
 
-	// [0] = [WRITE, SIGNER] user
+	// [0] = [SIGNER] user
 	//
 	// [1] = [] receipt_token_program
 	//
@@ -73,7 +73,7 @@ func (inst *UserDepositSupportedTokenInstruction) SetMetadata(metadata DepositMe
 
 // SetUserAccount sets the "user" account.
 func (inst *UserDepositSupportedTokenInstruction) SetUserAccount(user ag_solanago.PublicKey) *UserDepositSupportedTokenInstruction {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(user).WRITE().SIGNER()
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(user).SIGNER()
 	return inst
 }
 

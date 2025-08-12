@@ -716,8 +716,144 @@ func (obj *UserCanceledWithdrawalRequestFromFundEventData) Self() any {
 	return obj
 }
 
+type UserClaimedRewardEventData struct {
+	ReceiptTokenMint                   ag_solanago.PublicKey
+	User                               ag_solanago.PublicKey
+	RewardTokenMint                    ag_solanago.PublicKey
+	DestinationRewardTokenAccount      ag_solanago.PublicKey
+	DestinationRewardTokenAccountOwner ag_solanago.PublicKey
+	UpdatedRewardAccount               ag_solanago.PublicKey
+	UpdatedUserRewardAccount           ag_solanago.PublicKey
+	ClaimedRewardTokenAmount           uint64
+	TotalClaimedRewardTokenAmount      uint64
+}
+
+var UserClaimedRewardEventDataDiscriminator = [8]byte{160, 153, 31, 26, 146, 151, 242, 46}
+
+func (obj UserClaimedRewardEventData) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Write account discriminator:
+	err = encoder.WriteBytes(UserClaimedRewardEventDataDiscriminator[:], false)
+	if err != nil {
+		return err
+	}
+	// Serialize `ReceiptTokenMint` param:
+	err = encoder.Encode(obj.ReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Serialize `User` param:
+	err = encoder.Encode(obj.User)
+	if err != nil {
+		return err
+	}
+	// Serialize `RewardTokenMint` param:
+	err = encoder.Encode(obj.RewardTokenMint)
+	if err != nil {
+		return err
+	}
+	// Serialize `DestinationRewardTokenAccount` param:
+	err = encoder.Encode(obj.DestinationRewardTokenAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `DestinationRewardTokenAccountOwner` param:
+	err = encoder.Encode(obj.DestinationRewardTokenAccountOwner)
+	if err != nil {
+		return err
+	}
+	// Serialize `UpdatedRewardAccount` param:
+	err = encoder.Encode(obj.UpdatedRewardAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `UpdatedUserRewardAccount` param:
+	err = encoder.Encode(obj.UpdatedUserRewardAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `ClaimedRewardTokenAmount` param:
+	err = encoder.Encode(obj.ClaimedRewardTokenAmount)
+	if err != nil {
+		return err
+	}
+	// Serialize `TotalClaimedRewardTokenAmount` param:
+	err = encoder.Encode(obj.TotalClaimedRewardTokenAmount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *UserClaimedRewardEventData) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Read and check account discriminator:
+	{
+		discriminator, err := decoder.ReadTypeID()
+		if err != nil {
+			return err
+		}
+		if !discriminator.Equal(UserClaimedRewardEventDataDiscriminator[:]) {
+			return fmt.Errorf(
+				"wrong discriminator: wanted %s, got %s",
+				"[160 153 31 26 146 151 242 46]",
+				fmt.Sprint(discriminator[:]))
+		}
+	}
+	// Deserialize `ReceiptTokenMint`:
+	err = decoder.Decode(&obj.ReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Deserialize `User`:
+	err = decoder.Decode(&obj.User)
+	if err != nil {
+		return err
+	}
+	// Deserialize `RewardTokenMint`:
+	err = decoder.Decode(&obj.RewardTokenMint)
+	if err != nil {
+		return err
+	}
+	// Deserialize `DestinationRewardTokenAccount`:
+	err = decoder.Decode(&obj.DestinationRewardTokenAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `DestinationRewardTokenAccountOwner`:
+	err = decoder.Decode(&obj.DestinationRewardTokenAccountOwner)
+	if err != nil {
+		return err
+	}
+	// Deserialize `UpdatedRewardAccount`:
+	err = decoder.Decode(&obj.UpdatedRewardAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `UpdatedUserRewardAccount`:
+	err = decoder.Decode(&obj.UpdatedUserRewardAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `ClaimedRewardTokenAmount`:
+	err = decoder.Decode(&obj.ClaimedRewardTokenAmount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `TotalClaimedRewardTokenAmount`:
+	err = decoder.Decode(&obj.TotalClaimedRewardTokenAmount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UserClaimedRewardEventData) isEventData() {}
+func (obj *UserClaimedRewardEventData) Self() any {
+	return obj
+}
+
 type UserCreatedOrUpdatedFundAccountEventData struct {
 	ReceiptTokenMint   ag_solanago.PublicKey
+	User               ag_solanago.PublicKey
 	UserFundAccount    ag_solanago.PublicKey
 	ReceiptTokenAmount uint64
 	Created            bool
@@ -733,6 +869,11 @@ func (obj UserCreatedOrUpdatedFundAccountEventData) MarshalWithEncoder(encoder *
 	}
 	// Serialize `ReceiptTokenMint` param:
 	err = encoder.Encode(obj.ReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Serialize `User` param:
+	err = encoder.Encode(obj.User)
 	if err != nil {
 		return err
 	}
@@ -773,6 +914,11 @@ func (obj *UserCreatedOrUpdatedFundAccountEventData) UnmarshalWithDecoder(decode
 	if err != nil {
 		return err
 	}
+	// Deserialize `User`:
+	err = decoder.Decode(&obj.User)
+	if err != nil {
+		return err
+	}
 	// Deserialize `UserFundAccount`:
 	err = decoder.Decode(&obj.UserFundAccount)
 	if err != nil {
@@ -798,6 +944,7 @@ func (obj *UserCreatedOrUpdatedFundAccountEventData) Self() any {
 
 type UserCreatedOrUpdatedRewardAccountEventData struct {
 	ReceiptTokenMint   ag_solanago.PublicKey
+	User               ag_solanago.PublicKey
 	UserRewardAccount  ag_solanago.PublicKey
 	ReceiptTokenAmount uint64
 	Created            bool
@@ -813,6 +960,11 @@ func (obj UserCreatedOrUpdatedRewardAccountEventData) MarshalWithEncoder(encoder
 	}
 	// Serialize `ReceiptTokenMint` param:
 	err = encoder.Encode(obj.ReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Serialize `User` param:
+	err = encoder.Encode(obj.User)
 	if err != nil {
 		return err
 	}
@@ -853,6 +1005,11 @@ func (obj *UserCreatedOrUpdatedRewardAccountEventData) UnmarshalWithDecoder(deco
 	if err != nil {
 		return err
 	}
+	// Deserialize `User`:
+	err = decoder.Decode(&obj.User)
+	if err != nil {
+		return err
+	}
 	// Deserialize `UserRewardAccount`:
 	err = decoder.Decode(&obj.UserRewardAccount)
 	if err != nil {
@@ -873,6 +1030,107 @@ func (obj *UserCreatedOrUpdatedRewardAccountEventData) UnmarshalWithDecoder(deco
 
 func (*UserCreatedOrUpdatedRewardAccountEventData) isEventData() {}
 func (obj *UserCreatedOrUpdatedRewardAccountEventData) Self() any {
+	return obj
+}
+
+type UserDelegatedRewardAccountEventData struct {
+	ReceiptTokenMint  ag_solanago.PublicKey
+	User              ag_solanago.PublicKey
+	UserRewardAccount ag_solanago.PublicKey
+	Delegate          *ag_solanago.PublicKey `bin:"optional"`
+}
+
+var UserDelegatedRewardAccountEventDataDiscriminator = [8]byte{20, 29, 149, 185, 98, 109, 121, 96}
+
+func (obj UserDelegatedRewardAccountEventData) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Write account discriminator:
+	err = encoder.WriteBytes(UserDelegatedRewardAccountEventDataDiscriminator[:], false)
+	if err != nil {
+		return err
+	}
+	// Serialize `ReceiptTokenMint` param:
+	err = encoder.Encode(obj.ReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Serialize `User` param:
+	err = encoder.Encode(obj.User)
+	if err != nil {
+		return err
+	}
+	// Serialize `UserRewardAccount` param:
+	err = encoder.Encode(obj.UserRewardAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `Delegate` param (optional):
+	{
+		if obj.Delegate == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Delegate)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UserDelegatedRewardAccountEventData) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Read and check account discriminator:
+	{
+		discriminator, err := decoder.ReadTypeID()
+		if err != nil {
+			return err
+		}
+		if !discriminator.Equal(UserDelegatedRewardAccountEventDataDiscriminator[:]) {
+			return fmt.Errorf(
+				"wrong discriminator: wanted %s, got %s",
+				"[20 29 149 185 98 109 121 96]",
+				fmt.Sprint(discriminator[:]))
+		}
+	}
+	// Deserialize `ReceiptTokenMint`:
+	err = decoder.Decode(&obj.ReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Deserialize `User`:
+	err = decoder.Decode(&obj.User)
+	if err != nil {
+		return err
+	}
+	// Deserialize `UserRewardAccount`:
+	err = decoder.Decode(&obj.UserRewardAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Delegate` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Delegate)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (*UserDelegatedRewardAccountEventData) isEventData() {}
+func (obj *UserDelegatedRewardAccountEventData) Self() any {
 	return obj
 }
 
@@ -1125,6 +1383,227 @@ func (obj *UserDepositedToFundEventData) UnmarshalWithDecoder(decoder *ag_binary
 
 func (*UserDepositedToFundEventData) isEventData() {}
 func (obj *UserDepositedToFundEventData) Self() any {
+	return obj
+}
+
+type UserDepositedToVaultEventData struct {
+	ReceiptTokenMint             ag_solanago.PublicKey
+	FundAccount                  ag_solanago.PublicKey
+	VaultAccount                 ag_solanago.PublicKey
+	VaultReceiptTokenMint        ag_solanago.PublicKey
+	UpdatedUserRewardAccounts    []ag_solanago.PublicKey
+	User                         ag_solanago.PublicKey
+	UserReceiptTokenAccount      ag_solanago.PublicKey
+	UserFundAccount              ag_solanago.PublicKey
+	UserVaultReceiptTokenAccount ag_solanago.PublicKey
+	WalletProvider               *string `bin:"optional"`
+	ContributionAccrualRate      *uint16 `bin:"optional"`
+	DepositedAmount              uint64
+	MintedReceiptTokenAmount     uint64
+}
+
+var UserDepositedToVaultEventDataDiscriminator = [8]byte{246, 243, 21, 7, 151, 242, 117, 202}
+
+func (obj UserDepositedToVaultEventData) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Write account discriminator:
+	err = encoder.WriteBytes(UserDepositedToVaultEventDataDiscriminator[:], false)
+	if err != nil {
+		return err
+	}
+	// Serialize `ReceiptTokenMint` param:
+	err = encoder.Encode(obj.ReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Serialize `FundAccount` param:
+	err = encoder.Encode(obj.FundAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `VaultAccount` param:
+	err = encoder.Encode(obj.VaultAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `VaultReceiptTokenMint` param:
+	err = encoder.Encode(obj.VaultReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Serialize `UpdatedUserRewardAccounts` param:
+	err = encoder.Encode(obj.UpdatedUserRewardAccounts)
+	if err != nil {
+		return err
+	}
+	// Serialize `User` param:
+	err = encoder.Encode(obj.User)
+	if err != nil {
+		return err
+	}
+	// Serialize `UserReceiptTokenAccount` param:
+	err = encoder.Encode(obj.UserReceiptTokenAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `UserFundAccount` param:
+	err = encoder.Encode(obj.UserFundAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `UserVaultReceiptTokenAccount` param:
+	err = encoder.Encode(obj.UserVaultReceiptTokenAccount)
+	if err != nil {
+		return err
+	}
+	// Serialize `WalletProvider` param (optional):
+	{
+		if obj.WalletProvider == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.WalletProvider)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `ContributionAccrualRate` param (optional):
+	{
+		if obj.ContributionAccrualRate == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.ContributionAccrualRate)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `DepositedAmount` param:
+	err = encoder.Encode(obj.DepositedAmount)
+	if err != nil {
+		return err
+	}
+	// Serialize `MintedReceiptTokenAmount` param:
+	err = encoder.Encode(obj.MintedReceiptTokenAmount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *UserDepositedToVaultEventData) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Read and check account discriminator:
+	{
+		discriminator, err := decoder.ReadTypeID()
+		if err != nil {
+			return err
+		}
+		if !discriminator.Equal(UserDepositedToVaultEventDataDiscriminator[:]) {
+			return fmt.Errorf(
+				"wrong discriminator: wanted %s, got %s",
+				"[246 243 21 7 151 242 117 202]",
+				fmt.Sprint(discriminator[:]))
+		}
+	}
+	// Deserialize `ReceiptTokenMint`:
+	err = decoder.Decode(&obj.ReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Deserialize `FundAccount`:
+	err = decoder.Decode(&obj.FundAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `VaultAccount`:
+	err = decoder.Decode(&obj.VaultAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `VaultReceiptTokenMint`:
+	err = decoder.Decode(&obj.VaultReceiptTokenMint)
+	if err != nil {
+		return err
+	}
+	// Deserialize `UpdatedUserRewardAccounts`:
+	err = decoder.Decode(&obj.UpdatedUserRewardAccounts)
+	if err != nil {
+		return err
+	}
+	// Deserialize `User`:
+	err = decoder.Decode(&obj.User)
+	if err != nil {
+		return err
+	}
+	// Deserialize `UserReceiptTokenAccount`:
+	err = decoder.Decode(&obj.UserReceiptTokenAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `UserFundAccount`:
+	err = decoder.Decode(&obj.UserFundAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `UserVaultReceiptTokenAccount`:
+	err = decoder.Decode(&obj.UserVaultReceiptTokenAccount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `WalletProvider` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.WalletProvider)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `ContributionAccrualRate` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.ContributionAccrualRate)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `DepositedAmount`:
+	err = decoder.Decode(&obj.DepositedAmount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `MintedReceiptTokenAmount`:
+	err = decoder.Decode(&obj.MintedReceiptTokenAmount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (*UserDepositedToVaultEventData) isEventData() {}
+func (obj *UserDepositedToVaultEventData) Self() any {
 	return obj
 }
 
@@ -2158,9 +2637,12 @@ var eventTypes = map[[8]byte]reflect.Type{
 	OperatorUpdatedNormalizedTokenPoolPricesEventDataDiscriminator: reflect.TypeOf(OperatorUpdatedNormalizedTokenPoolPricesEventData{}),
 	OperatorUpdatedRewardPoolsEventDataDiscriminator:               reflect.TypeOf(OperatorUpdatedRewardPoolsEventData{}),
 	UserCanceledWithdrawalRequestFromFundEventDataDiscriminator:    reflect.TypeOf(UserCanceledWithdrawalRequestFromFundEventData{}),
+	UserClaimedRewardEventDataDiscriminator:                        reflect.TypeOf(UserClaimedRewardEventData{}),
 	UserCreatedOrUpdatedFundAccountEventDataDiscriminator:          reflect.TypeOf(UserCreatedOrUpdatedFundAccountEventData{}),
 	UserCreatedOrUpdatedRewardAccountEventDataDiscriminator:        reflect.TypeOf(UserCreatedOrUpdatedRewardAccountEventData{}),
+	UserDelegatedRewardAccountEventDataDiscriminator:               reflect.TypeOf(UserDelegatedRewardAccountEventData{}),
 	UserDepositedToFundEventDataDiscriminator:                      reflect.TypeOf(UserDepositedToFundEventData{}),
+	UserDepositedToVaultEventDataDiscriminator:                     reflect.TypeOf(UserDepositedToVaultEventData{}),
 	UserRequestedWithdrawalFromFundEventDataDiscriminator:          reflect.TypeOf(UserRequestedWithdrawalFromFundEventData{}),
 	UserTransferredReceiptTokenEventDataDiscriminator:              reflect.TypeOf(UserTransferredReceiptTokenEventData{}),
 	UserUnwrappedReceiptTokenEventDataDiscriminator:                reflect.TypeOf(UserUnwrappedReceiptTokenEventData{}),
@@ -2177,9 +2659,12 @@ var eventNames = map[[8]byte]string{
 	OperatorUpdatedNormalizedTokenPoolPricesEventDataDiscriminator: "OperatorUpdatedNormalizedTokenPoolPrices",
 	OperatorUpdatedRewardPoolsEventDataDiscriminator:               "OperatorUpdatedRewardPools",
 	UserCanceledWithdrawalRequestFromFundEventDataDiscriminator:    "UserCanceledWithdrawalRequestFromFund",
+	UserClaimedRewardEventDataDiscriminator:                        "UserClaimedReward",
 	UserCreatedOrUpdatedFundAccountEventDataDiscriminator:          "UserCreatedOrUpdatedFundAccount",
 	UserCreatedOrUpdatedRewardAccountEventDataDiscriminator:        "UserCreatedOrUpdatedRewardAccount",
+	UserDelegatedRewardAccountEventDataDiscriminator:               "UserDelegatedRewardAccount",
 	UserDepositedToFundEventDataDiscriminator:                      "UserDepositedToFund",
+	UserDepositedToVaultEventDataDiscriminator:                     "UserDepositedToVault",
 	UserRequestedWithdrawalFromFundEventDataDiscriminator:          "UserRequestedWithdrawalFromFund",
 	UserTransferredReceiptTokenEventDataDiscriminator:              "UserTransferredReceiptToken",
 	UserUnwrappedReceiptTokenEventDataDiscriminator:                "UserUnwrappedReceiptToken",

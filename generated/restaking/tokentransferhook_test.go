@@ -10,18 +10,18 @@ import (
 	"testing"
 )
 
-func TestEncodeDecode_UserInitializeRewardAccount(t *testing.T) {
+func TestEncodeDecode_TokenTransferHook(t *testing.T) {
 	fu := ag_gofuzz.New().NilChance(0)
 	for i := 0; i < 1; i++ {
-		t.Run("UserInitializeRewardAccount"+strconv.Itoa(i), func(t *testing.T) {
+		t.Run("TokenTransferHook"+strconv.Itoa(i), func(t *testing.T) {
 			{
-				params := new(UserInitializeRewardAccountInstruction)
+				params := new(TokenTransferHookInstruction)
 				fu.Fuzz(params)
 				params.AccountMetaSlice = nil
 				buf := new(bytes.Buffer)
 				err := encodeT(*params, buf)
 				ag_require.NoError(t, err)
-				got := new(UserInitializeRewardAccountInstruction)
+				got := new(TokenTransferHookInstruction)
 				err = decodeT(got, buf.Bytes())
 				got.AccountMetaSlice = nil
 				ag_require.NoError(t, err)

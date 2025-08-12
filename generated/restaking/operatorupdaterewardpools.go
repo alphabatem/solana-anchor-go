@@ -13,7 +13,7 @@ import (
 // OperatorUpdateRewardPools is the `operator_update_reward_pools` instruction.
 type OperatorUpdateRewardPoolsInstruction struct {
 
-	// [0] = [WRITE, SIGNER] operator
+	// [0] = [SIGNER] operator
 	//
 	// [1] = [] system_program
 	//
@@ -38,7 +38,7 @@ func NewOperatorUpdateRewardPoolsInstructionBuilder() *OperatorUpdateRewardPools
 
 // SetOperatorAccount sets the "operator" account.
 func (inst *OperatorUpdateRewardPoolsInstruction) SetOperatorAccount(operator ag_solanago.PublicKey) *OperatorUpdateRewardPoolsInstruction {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(operator).WRITE().SIGNER()
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(operator).SIGNER()
 	return inst
 }
 

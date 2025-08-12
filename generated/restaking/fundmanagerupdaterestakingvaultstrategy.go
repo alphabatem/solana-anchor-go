@@ -12,9 +12,11 @@ import (
 
 // FundManagerUpdateRestakingVaultStrategy is the `fund_manager_update_restaking_vault_strategy` instruction.
 type FundManagerUpdateRestakingVaultStrategyInstruction struct {
-	Vault                       *ag_solanago.PublicKey
-	SolAllocationWeight         *uint64
-	SolAllocationCapacityAmount *uint64
+	Vault                        *ag_solanago.PublicKey
+	SolAllocationWeight          *uint64
+	SolAllocationCapacityAmount  *uint64
+	RewardCommissionRateBps      *uint16
+	VaultReceiptTokenDepositable *bool
 
 	// [0] = [SIGNER] fund_manager
 	//
@@ -33,7 +35,7 @@ func NewFundManagerUpdateRestakingVaultStrategyInstructionBuilder() *FundManager
 	nd := &FundManagerUpdateRestakingVaultStrategyInstruction{
 		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	return nd
 }
 
@@ -52,6 +54,18 @@ func (inst *FundManagerUpdateRestakingVaultStrategyInstruction) SetSolAllocation
 // SetSolAllocationCapacityAmount sets the "sol_allocation_capacity_amount" parameter.
 func (inst *FundManagerUpdateRestakingVaultStrategyInstruction) SetSolAllocationCapacityAmount(sol_allocation_capacity_amount uint64) *FundManagerUpdateRestakingVaultStrategyInstruction {
 	inst.SolAllocationCapacityAmount = &sol_allocation_capacity_amount
+	return inst
+}
+
+// SetRewardCommissionRateBps sets the "reward_commission_rate_bps" parameter.
+func (inst *FundManagerUpdateRestakingVaultStrategyInstruction) SetRewardCommissionRateBps(reward_commission_rate_bps uint16) *FundManagerUpdateRestakingVaultStrategyInstruction {
+	inst.RewardCommissionRateBps = &reward_commission_rate_bps
+	return inst
+}
+
+// SetVaultReceiptTokenDepositable sets the "vault_receipt_token_depositable" parameter.
+func (inst *FundManagerUpdateRestakingVaultStrategyInstruction) SetVaultReceiptTokenDepositable(vault_receipt_token_depositable bool) *FundManagerUpdateRestakingVaultStrategyInstruction {
+	inst.VaultReceiptTokenDepositable = &vault_receipt_token_depositable
 	return inst
 }
 
@@ -225,6 +239,12 @@ func (inst *FundManagerUpdateRestakingVaultStrategyInstruction) Validate() error
 		if inst.SolAllocationCapacityAmount == nil {
 			return errors.New("SolAllocationCapacityAmount parameter is not set")
 		}
+		if inst.RewardCommissionRateBps == nil {
+			return errors.New("RewardCommissionRateBps parameter is not set")
+		}
+		if inst.VaultReceiptTokenDepositable == nil {
+			return errors.New("VaultReceiptTokenDepositable parameter is not set")
+		}
 	}
 
 	// Check whether all (required) accounts are set:
@@ -257,10 +277,12 @@ func (inst *FundManagerUpdateRestakingVaultStrategyInstruction) EncodeToTree(par
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=3]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("                         Vault", *inst.Vault))
-						paramsBranch.Child(ag_format.Param("           SolAllocationWeight", *inst.SolAllocationWeight))
-						paramsBranch.Child(ag_format.Param("   SolAllocationCapacityAmount", *inst.SolAllocationCapacityAmount))
+					instructionBranch.Child("Params[len=5]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
+						paramsBranch.Child(ag_format.Param("                          Vault", *inst.Vault))
+						paramsBranch.Child(ag_format.Param("            SolAllocationWeight", *inst.SolAllocationWeight))
+						paramsBranch.Child(ag_format.Param("    SolAllocationCapacityAmount", *inst.SolAllocationCapacityAmount))
+						paramsBranch.Child(ag_format.Param("        RewardCommissionRateBps", *inst.RewardCommissionRateBps))
+						paramsBranch.Child(ag_format.Param("   VaultReceiptTokenDepositable", *inst.VaultReceiptTokenDepositable))
 					})
 
 					// Accounts of the instruction:
@@ -291,6 +313,16 @@ func (obj FundManagerUpdateRestakingVaultStrategyInstruction) MarshalWithEncoder
 	if err != nil {
 		return err
 	}
+	// Serialize `RewardCommissionRateBps` param:
+	err = encoder.Encode(obj.RewardCommissionRateBps)
+	if err != nil {
+		return err
+	}
+	// Serialize `VaultReceiptTokenDepositable` param:
+	err = encoder.Encode(obj.VaultReceiptTokenDepositable)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func (obj *FundManagerUpdateRestakingVaultStrategyInstruction) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
@@ -309,6 +341,16 @@ func (obj *FundManagerUpdateRestakingVaultStrategyInstruction) UnmarshalWithDeco
 	if err != nil {
 		return err
 	}
+	// Deserialize `RewardCommissionRateBps`:
+	err = decoder.Decode(&obj.RewardCommissionRateBps)
+	if err != nil {
+		return err
+	}
+	// Deserialize `VaultReceiptTokenDepositable`:
+	err = decoder.Decode(&obj.VaultReceiptTokenDepositable)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -318,6 +360,8 @@ func NewFundManagerUpdateRestakingVaultStrategyInstruction(
 	vault ag_solanago.PublicKey,
 	sol_allocation_weight uint64,
 	sol_allocation_capacity_amount uint64,
+	reward_commission_rate_bps uint16,
+	vault_receipt_token_depositable bool,
 	// Accounts:
 	fundManager ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
@@ -328,6 +372,8 @@ func NewFundManagerUpdateRestakingVaultStrategyInstruction(
 		SetVault(vault).
 		SetSolAllocationWeight(sol_allocation_weight).
 		SetSolAllocationCapacityAmount(sol_allocation_capacity_amount).
+		SetRewardCommissionRateBps(reward_commission_rate_bps).
+		SetVaultReceiptTokenDepositable(vault_receipt_token_depositable).
 		SetFundManagerAccount(fundManager).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetFundAccountAccount(fundAccount).

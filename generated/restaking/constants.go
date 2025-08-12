@@ -2,68 +2,12 @@
 
 package restaking
 
-import ag_solanago "github.com/gagliardetto/solana-go"
-
-const (
-	ConstantAdminPubkey                                    = "fragkamrANLvuZYQPcmPsCATQAabkqNGH6gxqqPG3aP"  // pubkey
-	ConstantDevnetBsolMintAddress                          = "bSo13r4TkiE4KumL71LsHTPpL2euBYLFx6h9HP3piy1"  // pubkey
-	ConstantDevnetBsolStakePoolAddress                     = "azFVdHtAJN8BX3sbGAYkXvtdjdrT5U6rj9rovvUFos9"  // pubkey
-	ConstantDevnetFragjtoAddressLookupTableAddress         = "6VHmiiuZAW2PVoY5N16oqs8wYVkXnfmZBcM7Vkbb76jH" // pubkey
-	ConstantDevnetFragsolAddressLookupTableAddress         = "5i5ExdTT7j36gKyiyjhaEcqFWUESvi6maASJyxKVZLyU" // pubkey
-	ConstantDevnetJitosolMintAddress                       = "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn" // pubkey
-	ConstantDevnetJitosolStakePoolAddress                  = "Jito4APyf642JPZPx3hGc6WWJ8zPKtRbRs4P815Awbb"  // pubkey
-	ConstantDevnetJtoLiquidityPoolAddress                  = "BQQVo6sz9pTjD1P88C7WgCo4ABLxr8PM6Ycu4fzDZmBQ" // pubkey
-	ConstantDevnetJtoMintAddress                           = "FAkEjwHSbxkojmdiMurSXR11dU5jbfoqVhtjFCXbM1hh" // pubkey
-	ConstantDevnetMsolMintAddress                          = "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"  // pubkey
-	ConstantDevnetMsolStakePoolAddress                     = "8szGkuLTAux9XMgZ2vtY39jVSowEcpBfFfD8hXSEqdGC" // pubkey
-	ConstantDevnetNsolMintAddress                          = "nSoLnkrvh2aY792pgCNT6hzx84vYtkviRzxvhf3ws8e"  // pubkey
-	ConstantDevnetProgramId                                = "frag9zfFME5u1SNhUYGa4cXLzMKgZXF3xwZ2Y1KCYTQ"  // pubkey
-	ConstantFragjtoAddressLookupTableAddress               = "6VHmiiuZAW2PVoY5N16oqs8wYVkXnfmZBcM7Vkbb76jH" // pubkey
-	ConstantFragjtoJitoJtoVaultAccountAddress              = "7dCQpU5w6Xz3aAnpFrXByBg9LxLdz33deUCrWJAVcNaE" // pubkey
-	ConstantFragjtoJitoJtoVaultReceiptTokenMintAddress     = "6VSjoP9hyHKKNZfcDzrAKRKWKSnyKhzLgBR9dtewPN9z" // pubkey
-	ConstantFragjtoMintAddress                             = "FRAGJ157KSDfGvBJtCSrsTWUqFnZhrw4aC8N8LqHuoos" // pubkey
-	ConstantFragjtoWrappedTokenMintAddress                 = "WFRGJnQt5pK8Dv4cDAbrSsgPcmboysrmX3RYhmRRyTR"  // pubkey
-	ConstantFragsolAddressLookupTableAddress               = "5i5ExdTT7j36gKyiyjhaEcqFWUESvi6maASJyxKVZLyU" // pubkey
-	ConstantFragsolJitoJitosolVaultAccountAddress          = "2KeeztiFcCV6HpBHrWYyuv8hYrhu27imm6XgknaM7NNG" // pubkey
-	ConstantFragsolJitoJitosolVaultReceiptTokenMintAddress = "FRj1uf9W7TsGfSoHc1gU6V2sKxs4wMhaXC5A8KjVYvA5" // pubkey
-	ConstantFragsolJitoNsolVaultAccountAddress             = "BxhsigZDYjWTzXGgem9W3DsvJgFpEK5pM2RANP22bxBE" // pubkey
-	ConstantFragsolJitoNsolVaultReceiptTokenMintAddress    = "7jff6VT8twUX3513HuhN7EF18DtUzBj2N1goWroZ29t"  // pubkey
-	ConstantFragsolMintAddress                             = "FRAGSEthVFL7fdqM8hxfxkfCZzUvmg21cqPJVvC1qdbo" // pubkey
-	ConstantFragsolNormalizedTokenMintAddress              = "nSoLnkrvh2aY792pgCNT6hzx84vYtkviRzxvhf3ws8e"  // pubkey
-	ConstantFragsolWrappedTokenMintAddress                 = "WFRGSWjaz8tbAxsJitmbfRuFV2mSNwy7BMWcCwaA28U"  // pubkey
-	// ## Version History
+const ( // ## Version History
 	// * v15: migrate to new layout including new fields using bytemuck. (150640 ~= 148KB)
 	// * v16: add wrap_account and wrapped token field. (151336 ~= 148KB)
 	// * v18: add reserved space for 60 pubkeys in wrapped token and swap strategies. (163840 = 160KB)
-	ConstantFundAccountCurrentVersion                    = 18
-	ConstantFundAccountOperationCommandExpirationSeconds = 600
-	ConstantFundManagerPubkey                            = "5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2" // pubkey
-	ConstantJitoRestakingConfigAddress                   = "4vvKh3Ws4vGzgXRVdo8SdL4jePXDvCqKVmi21BCBGwvn" // pubkey
-	ConstantJitoRestakingProgramId                       = "RestkWeAVL8fRGgzhfeoqFhsqKRchg6aa1XrcH96z4Q"  // pubkey
-	ConstantJitoVaultConfigAddress                       = "UwuSgAq4zByffCGCrWH87DsjfsewYjuqHfJEpzw1Jq3"  // pubkey
-	ConstantJitoVaultProgramFeeWallet                    = "9eZbWiHsPRsxLSiHxzg2pkXsAuQMwAjQrda7C7e21Fw6" // pubkey
-	ConstantJitoVaultProgramId                           = "Vau1t6sLNxnzB7ZDsef8TLbPLfyZMYXH8WTNqUdm9g8"  // pubkey
-	ConstantMainnetBbsolMintAddress                      = "Bybit2vBJGhPF52GBdNaQfUJ6ZpThSgHBobjWZpLPb4B" // pubkey
-	ConstantMainnetBbsolStakePoolAddress                 = "2aMLkB5p5gVvCwKkdSo5eZAL1WwhZbxezQr1wxiynRhq" // pubkey
-	ConstantMainnetBnsolMintAddress                      = "BNso1VUJnh4zcfpZa6986Ea66P6TCp59hvtNJ8b1X85"  // pubkey
-	ConstantMainnetBnsolStakePoolAddress                 = "Hr9pzexrBge3vgmBNRR8u42CNQgBXdHm4UkUN2DH4a7r" // pubkey
-	ConstantMainnetBsolMintAddress                       = "bSo13r4TkiE4KumL71LsHTPpL2euBYLFx6h9HP3piy1"  // pubkey
-	ConstantMainnetBsolStakePoolAddress                  = "stk9ApL5HeVAwPLr3TLhDXdZS8ptVu7zp6ov8HFDuMi"  // pubkey
-	ConstantMainnetFragjtoAddressLookupTableAddress      = "AQtDes99nLUnSK6BQJgj9KJ6b3eDv8bUUxGCmnEJUkY5" // pubkey
-	/*
-	   Below address are needed to be passed to transactions which includes pricing of tokens (token deposit, withdrawal request)
-	   A complete list will be provided to client via address lookup table later.
-	   *
-	*/
-	ConstantMainnetFragsolAddressLookupTableAddress = "HjNXH2HMfso5YU6U7McfhsbfoecGR5QTBAxTCSbFoYqy" // pubkey
-	ConstantMainnetJitosolMintAddress               = "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn" // pubkey
-	ConstantMainnetJitosolStakePoolAddress          = "Jito4APyf642JPZPx3hGc6WWJ8zPKtRbRs4P815Awbb"  // pubkey
-	ConstantMainnetJtoLiquidityPoolAddress          = "2UhFnySoJi6c89aydGAGS7ZRemo2dbkFRhvSJqDX4gHJ" // pubkey
-	ConstantMainnetJtoMintAddress                   = "jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL"  // pubkey
-	ConstantMainnetMsolMintAddress                  = "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"  // pubkey
-	ConstantMainnetMsolStakePoolAddress             = "8szGkuLTAux9XMgZ2vtY39jVSowEcpBfFfD8hXSEqdGC" // pubkey
-	ConstantMainnetNsolMintAddress                  = "nSoLnkrvh2aY792pgCNT6hzx84vYtkviRzxvhf3ws8e"  // pubkey
-	ConstantMainnetProgramId                        = "fragnAis7Bp6FTsMoa6YcH8UffhEw43Ph79qAiK3iF3"  // pubkey
+	// * v19: add wrapped token holder concept in wrapped token. (163840 = 160KB)
+	ConstantFundAccountCurrentVersion = 19
 	// ## Version History
 	// * v1: Initial Version
 	// * v2: Add `normalized_token_decimals`, .., `one_normalized_token_as_sol` fields
@@ -71,74 +15,14 @@ const (
 	// ## Version History
 	// * v1: Initial Version
 	ConstantNormalizedTokenWithdrawalAccountCurrentVersion = 1
-	ConstantProgramRevenueAddress                          = "SRCMj3B7cYjvwTtqJxUSptgJPWkL8bHLrQme6q4zHn7" // pubkey
 	// ## Version History
-	// * v34: Initial Version (Data Size = 342064 ~= 335KB)
-	ConstantRewardAccountCurrentVersion = 34
-	ConstantTarget                      = "devnet"
-	ConstantUserFundAccountCurrentSize  = 567
+	// * v34: Initial Version (Data Size = 342072 ~= 335KB)
+	// * v35: remove holder (Data Size = 342072 ~= 335KB)
+	ConstantRewardAccountCurrentVersion = 35
 	// ## Version History
 	// * v1: Initial Version (567 ~= 0.55KB)
 	ConstantUserFundAccountCurrentVersion = 1
-	ConstantUserRewardAccountCurrentSize  = 4248
 	// ## Version History
 	// * v1: Initial Version (4248 ~= 4.14KB)
 	ConstantUserRewardAccountCurrentVersion = 1
-
-/*
-## VERSION 0.1
-*/
 )
-
-var (
-	AdminPubkey                                    = ag_solanago.MustPublicKeyFromBase58(ConstantAdminPubkey)
-	DevnetBsolMintAddress                          = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetBsolMintAddress)
-	DevnetBsolStakePoolAddress                     = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetBsolStakePoolAddress)
-	DevnetFragjtoAddressLookupTableAddress         = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetFragjtoAddressLookupTableAddress)
-	DevnetFragsolAddressLookupTableAddress         = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetFragsolAddressLookupTableAddress)
-	DevnetJitosolMintAddress                       = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetJitosolMintAddress)
-	DevnetJitosolStakePoolAddress                  = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetJitosolStakePoolAddress)
-	DevnetJtoLiquidityPoolAddress                  = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetJtoLiquidityPoolAddress)
-	DevnetJtoMintAddress                           = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetJtoMintAddress)
-	DevnetMsolMintAddress                          = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetMsolMintAddress)
-	DevnetMsolStakePoolAddress                     = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetMsolStakePoolAddress)
-	DevnetNsolMintAddress                          = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetNsolMintAddress)
-	DevnetProgramId                                = ag_solanago.MustPublicKeyFromBase58(ConstantDevnetProgramId)
-	FragjtoAddressLookupTableAddress               = ag_solanago.MustPublicKeyFromBase58(ConstantFragjtoAddressLookupTableAddress)
-	FragjtoJitoJtoVaultAccountAddress              = ag_solanago.MustPublicKeyFromBase58(ConstantFragjtoJitoJtoVaultAccountAddress)
-	FragjtoJitoJtoVaultReceiptTokenMintAddress     = ag_solanago.MustPublicKeyFromBase58(ConstantFragjtoJitoJtoVaultReceiptTokenMintAddress)
-	FragjtoMintAddress                             = ag_solanago.MustPublicKeyFromBase58(ConstantFragjtoMintAddress)
-	FragjtoWrappedTokenMintAddress                 = ag_solanago.MustPublicKeyFromBase58(ConstantFragjtoWrappedTokenMintAddress)
-	FragsolAddressLookupTableAddress               = ag_solanago.MustPublicKeyFromBase58(ConstantFragsolAddressLookupTableAddress)
-	FragsolJitoJitosolVaultAccountAddress          = ag_solanago.MustPublicKeyFromBase58(ConstantFragsolJitoJitosolVaultAccountAddress)
-	FragsolJitoJitosolVaultReceiptTokenMintAddress = ag_solanago.MustPublicKeyFromBase58(ConstantFragsolJitoJitosolVaultReceiptTokenMintAddress)
-	FragsolJitoNsolVaultAccountAddress             = ag_solanago.MustPublicKeyFromBase58(ConstantFragsolJitoNsolVaultAccountAddress)
-	FragsolJitoNsolVaultReceiptTokenMintAddress    = ag_solanago.MustPublicKeyFromBase58(ConstantFragsolJitoNsolVaultReceiptTokenMintAddress)
-	FragsolMintAddress                             = ag_solanago.MustPublicKeyFromBase58(ConstantFragsolMintAddress)
-	FragsolNormalizedTokenMintAddress              = ag_solanago.MustPublicKeyFromBase58(ConstantFragsolNormalizedTokenMintAddress)
-	FragsolWrappedTokenMintAddress                 = ag_solanago.MustPublicKeyFromBase58(ConstantFragsolWrappedTokenMintAddress)
-	FundManagerPubkey                              = ag_solanago.MustPublicKeyFromBase58(ConstantFundManagerPubkey)
-	JitoRestakingConfigAddress                     = ag_solanago.MustPublicKeyFromBase58(ConstantJitoRestakingConfigAddress)
-	JitoRestakingProgramId                         = ag_solanago.MustPublicKeyFromBase58(ConstantJitoRestakingProgramId)
-	JitoVaultConfigAddress                         = ag_solanago.MustPublicKeyFromBase58(ConstantJitoVaultConfigAddress)
-	JitoVaultProgramFeeWallet                      = ag_solanago.MustPublicKeyFromBase58(ConstantJitoVaultProgramFeeWallet)
-	JitoVaultProgramId                             = ag_solanago.MustPublicKeyFromBase58(ConstantJitoVaultProgramId)
-	MainnetBbsolMintAddress                        = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetBbsolMintAddress)
-	MainnetBbsolStakePoolAddress                   = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetBbsolStakePoolAddress)
-	MainnetBnsolMintAddress                        = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetBnsolMintAddress)
-	MainnetBnsolStakePoolAddress                   = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetBnsolStakePoolAddress)
-	MainnetBsolMintAddress                         = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetBsolMintAddress)
-	MainnetBsolStakePoolAddress                    = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetBsolStakePoolAddress)
-	MainnetFragjtoAddressLookupTableAddress        = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetFragjtoAddressLookupTableAddress)
-	MainnetFragsolAddressLookupTableAddress        = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetFragsolAddressLookupTableAddress)
-	MainnetJitosolMintAddress                      = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetJitosolMintAddress)
-	MainnetJitosolStakePoolAddress                 = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetJitosolStakePoolAddress)
-	MainnetJtoLiquidityPoolAddress                 = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetJtoLiquidityPoolAddress)
-	MainnetJtoMintAddress                          = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetJtoMintAddress)
-	MainnetMsolMintAddress                         = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetMsolMintAddress)
-	MainnetMsolStakePoolAddress                    = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetMsolStakePoolAddress)
-	MainnetNsolMintAddress                         = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetNsolMintAddress)
-	MainnetProgramId                               = ag_solanago.MustPublicKeyFromBase58(ConstantMainnetProgramId)
-	ProgramRevenueAddress                          = ag_solanago.MustPublicKeyFromBase58(ConstantProgramRevenueAddress)
-)
-var BinArrayBytes = []byte{98, 105, 110, 95, 97, 114, 114, 97, 121}

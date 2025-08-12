@@ -15,7 +15,7 @@ type UserWithdrawSupportedTokenInstruction struct {
 	BatchId   *uint64
 	RequestId *uint64
 
-	// [0] = [WRITE, SIGNER] user
+	// [0] = [SIGNER] user
 	//
 	// [1] = [] system_program
 	//
@@ -23,9 +23,9 @@ type UserWithdrawSupportedTokenInstruction struct {
 	//
 	// [3] = [] supported_token_program
 	//
-	// [4] = [WRITE] receipt_token_mint
+	// [4] = [] receipt_token_mint
 	//
-	// [5] = [WRITE] user_receipt_token_account
+	// [5] = [] user_receipt_token_account
 	//
 	// [6] = [] supported_token_mint
 	//
@@ -45,9 +45,9 @@ type UserWithdrawSupportedTokenInstruction struct {
 	//
 	// [13] = [WRITE] user_fund_account
 	//
-	// [14] = [WRITE] reward_account
+	// [14] = [] reward_account
 	//
-	// [15] = [WRITE] user_reward_account
+	// [15] = [] user_reward_account
 	//
 	// [16] = [] instructions_sysvar
 	//
@@ -82,7 +82,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) SetRequestId(request_id uint6
 
 // SetUserAccount sets the "user" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetUserAccount(user ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(user).WRITE().SIGNER()
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(user).SIGNER()
 	return inst
 }
 
@@ -126,7 +126,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) GetSupportedTokenProgramAccou
 
 // SetReceiptTokenMintAccount sets the "receipt_token_mint" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetReceiptTokenMintAccount(receiptTokenMint ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(receiptTokenMint).WRITE()
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(receiptTokenMint)
 	return inst
 }
 
@@ -137,7 +137,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) GetReceiptTokenMintAccount() 
 
 // SetUserReceiptTokenAccountAccount sets the "user_receipt_token_account" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetUserReceiptTokenAccountAccount(userReceiptTokenAccount ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(userReceiptTokenAccount).WRITE()
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(userReceiptTokenAccount)
 	return inst
 }
 
@@ -569,7 +569,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) GetUserFundAccountAccount() *
 
 // SetRewardAccountAccount sets the "reward_account" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetRewardAccountAccount(rewardAccount ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[14] = ag_solanago.Meta(rewardAccount).WRITE()
+	inst.AccountMetaSlice[14] = ag_solanago.Meta(rewardAccount)
 	return inst
 }
 
@@ -624,7 +624,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) GetRewardAccountAccount() *ag
 
 // SetUserRewardAccountAccount sets the "user_reward_account" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetUserRewardAccountAccount(userRewardAccount ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[15] = ag_solanago.Meta(userRewardAccount).WRITE()
+	inst.AccountMetaSlice[15] = ag_solanago.Meta(userRewardAccount)
 	return inst
 }
 

@@ -10,18 +10,18 @@ import (
 	"testing"
 )
 
-func TestEncodeDecode_UserUpdateFundAccountIfNeeded(t *testing.T) {
+func TestEncodeDecode_UserClaimReward(t *testing.T) {
 	fu := ag_gofuzz.New().NilChance(0)
 	for i := 0; i < 1; i++ {
-		t.Run("UserUpdateFundAccountIfNeeded"+strconv.Itoa(i), func(t *testing.T) {
+		t.Run("UserClaimReward"+strconv.Itoa(i), func(t *testing.T) {
 			{
-				params := new(UserUpdateFundAccountIfNeededInstruction)
+				params := new(UserClaimRewardInstruction)
 				fu.Fuzz(params)
 				params.AccountMetaSlice = nil
 				buf := new(bytes.Buffer)
 				err := encodeT(*params, buf)
 				ag_require.NoError(t, err)
-				got := new(UserUpdateFundAccountIfNeededInstruction)
+				got := new(UserClaimRewardInstruction)
 				err = decodeT(got, buf.Bytes())
 				got.AccountMetaSlice = nil
 				ag_require.NoError(t, err)

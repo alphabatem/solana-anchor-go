@@ -10,18 +10,18 @@ import (
 	"testing"
 )
 
-func TestEncodeDecode_AdminUpdateFundWrapAccountRewardAccountIfNeeded(t *testing.T) {
+func TestEncodeDecode_FundManagerRemoveWrappedTokenHolder(t *testing.T) {
 	fu := ag_gofuzz.New().NilChance(0)
 	for i := 0; i < 1; i++ {
-		t.Run("AdminUpdateFundWrapAccountRewardAccountIfNeeded"+strconv.Itoa(i), func(t *testing.T) {
+		t.Run("FundManagerRemoveWrappedTokenHolder"+strconv.Itoa(i), func(t *testing.T) {
 			{
-				params := new(AdminUpdateFundWrapAccountRewardAccountIfNeededInstruction)
+				params := new(FundManagerRemoveWrappedTokenHolderInstruction)
 				fu.Fuzz(params)
 				params.AccountMetaSlice = nil
 				buf := new(bytes.Buffer)
 				err := encodeT(*params, buf)
 				ag_require.NoError(t, err)
-				got := new(AdminUpdateFundWrapAccountRewardAccountIfNeededInstruction)
+				got := new(FundManagerRemoveWrappedTokenHolderInstruction)
 				err = decodeT(got, buf.Bytes())
 				got.AccountMetaSlice = nil
 				ag_require.NoError(t, err)
