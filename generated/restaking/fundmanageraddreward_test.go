@@ -6,7 +6,6 @@ import (
 	"bytes"
 	ag_gofuzz "github.com/gagliardetto/gofuzz"
 	ag_require "github.com/stretchr/testify/require"
-	"reflect"
 	"strconv"
 	"testing"
 )
@@ -16,68 +15,17 @@ func TestEncodeDecode_FundManagerAddReward(t *testing.T) {
 	for i := 0; i < 1; i++ {
 		t.Run("FundManagerAddReward"+strconv.Itoa(i), func(t *testing.T) {
 			{
-				{
-					{
-						params := new(FundManagerAddRewardInstruction)
-						fu.Fuzz(params)
-						params.AccountMetaSlice = nil
-						tmp := new(RewardTypePointTuple)
-						fu.Fuzz(tmp)
-						params.SetRewardType(RewardType{*tmp})
-						buf := new(bytes.Buffer)
-						err := encodeT(*params, buf)
-						ag_require.NoError(t, err)
-						got := new(FundManagerAddRewardInstruction)
-						err = decodeT(got, buf.Bytes())
-						got.AccountMetaSlice = nil
-						ag_require.NoError(t, err)
-						// to prevent garbage buffer fill by fuzz
-						if reflect.TypeOf(*tmp).Kind() != reflect.Struct {
-							got.RewardType = params.RewardType
-						}
-						ag_require.Equal(t, params, got)
-					}
-					{
-						params := new(FundManagerAddRewardInstruction)
-						fu.Fuzz(params)
-						params.AccountMetaSlice = nil
-						tmp := new(RewardTypeTokenTuple)
-						fu.Fuzz(tmp)
-						params.SetRewardType(RewardType{*tmp})
-						buf := new(bytes.Buffer)
-						err := encodeT(*params, buf)
-						ag_require.NoError(t, err)
-						got := new(FundManagerAddRewardInstruction)
-						err = decodeT(got, buf.Bytes())
-						got.AccountMetaSlice = nil
-						ag_require.NoError(t, err)
-						// to prevent garbage buffer fill by fuzz
-						if reflect.TypeOf(*tmp).Kind() != reflect.Struct {
-							got.RewardType = params.RewardType
-						}
-						ag_require.Equal(t, params, got)
-					}
-					{
-						params := new(FundManagerAddRewardInstruction)
-						fu.Fuzz(params)
-						params.AccountMetaSlice = nil
-						tmp := new(RewardTypeSOLTuple)
-						fu.Fuzz(tmp)
-						params.SetRewardType(RewardType{*tmp})
-						buf := new(bytes.Buffer)
-						err := encodeT(*params, buf)
-						ag_require.NoError(t, err)
-						got := new(FundManagerAddRewardInstruction)
-						err = decodeT(got, buf.Bytes())
-						got.AccountMetaSlice = nil
-						ag_require.NoError(t, err)
-						// to prevent garbage buffer fill by fuzz
-						if reflect.TypeOf(*tmp).Kind() != reflect.Struct {
-							got.RewardType = params.RewardType
-						}
-						ag_require.Equal(t, params, got)
-					}
-				}
+				params := new(FundManagerAddRewardInstruction)
+				fu.Fuzz(params)
+				params.AccountMetaSlice = nil
+				buf := new(bytes.Buffer)
+				err := encodeT(*params, buf)
+				ag_require.NoError(t, err)
+				got := new(FundManagerAddRewardInstruction)
+				err = decodeT(got, buf.Bytes())
+				got.AccountMetaSlice = nil
+				ag_require.NoError(t, err)
+				ag_require.Equal(t, params, got)
 			}
 		})
 	}

@@ -15,7 +15,7 @@ type UserWithdrawSupportedTokenInstruction struct {
 	BatchId   *uint64
 	RequestId *uint64
 
-	// [0] = [WRITE, SIGNER] user
+	// [0] = [SIGNER] user
 	//
 	// [1] = [] system_program
 	//
@@ -23,9 +23,9 @@ type UserWithdrawSupportedTokenInstruction struct {
 	//
 	// [3] = [] supported_token_program
 	//
-	// [4] = [WRITE] receipt_token_mint
+	// [4] = [] receipt_token_mint
 	//
-	// [5] = [WRITE] user_receipt_token_account
+	// [5] = [] user_receipt_token_account
 	//
 	// [6] = [] supported_token_mint
 	//
@@ -45,9 +45,9 @@ type UserWithdrawSupportedTokenInstruction struct {
 	//
 	// [13] = [WRITE] user_fund_account
 	//
-	// [14] = [WRITE] reward_account
+	// [14] = [] reward_account
 	//
-	// [15] = [WRITE] user_reward_account
+	// [15] = [] user_reward_account
 	//
 	// [16] = [] instructions_sysvar
 	//
@@ -82,7 +82,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) SetRequestId(request_id uint6
 
 // SetUserAccount sets the "user" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetUserAccount(user ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(user).WRITE().SIGNER()
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(user).SIGNER()
 	return inst
 }
 
@@ -126,7 +126,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) GetSupportedTokenProgramAccou
 
 // SetReceiptTokenMintAccount sets the "receipt_token_mint" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetReceiptTokenMintAccount(receiptTokenMint ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(receiptTokenMint).WRITE()
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(receiptTokenMint)
 	return inst
 }
 
@@ -137,7 +137,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) GetReceiptTokenMintAccount() 
 
 // SetUserReceiptTokenAccountAccount sets the "user_receipt_token_account" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetUserReceiptTokenAccountAccount(userReceiptTokenAccount ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(userReceiptTokenAccount).WRITE()
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(userReceiptTokenAccount)
 	return inst
 }
 
@@ -145,15 +145,15 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindUserReceiptTokenAccou
 	var seeds [][]byte
 	// path: user
 	seeds = append(seeds, user.Bytes())
-	// path: receiptTokenProgram
+	// path: receipt_token_program
 	seeds = append(seeds, receiptTokenProgram.Bytes())
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -226,11 +226,11 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindFundAccountAddress(re
 	var seeds [][]byte
 	// const: fund
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -281,11 +281,11 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindFundReserveAccountAdd
 	var seeds [][]byte
 	// const: fund_reserve
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64), byte(0x5f), byte(0x72), byte(0x65), byte(0x73), byte(0x65), byte(0x72), byte(0x76), byte(0x65)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -334,23 +334,26 @@ func (inst *UserWithdrawSupportedTokenInstruction) SetFundWithdrawalBatchAccount
 	return inst
 }
 
-func (inst *UserWithdrawSupportedTokenInstruction) findFindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+func (inst *UserWithdrawSupportedTokenInstruction) findFindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, batchId uint64, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
 	// const: withdrawal_batch
 	seeds = append(seeds, []byte{byte(0x77), byte(0x69), byte(0x74), byte(0x68), byte(0x64), byte(0x72), byte(0x61), byte(0x77), byte(0x61), byte(0x6c), byte(0x5f), byte(0x62), byte(0x61), byte(0x74), byte(0x63), byte(0x68)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
-	// path: supportedTokenMint
+	// path: supported_token_mint
 	seeds = append(seeds, supportedTokenMint.Bytes())
-	// arg: BatchId
-	batchIdSeed, err := ag_binary.MarshalBorsh(inst.BatchId)
-	if err != nil {
-		return
+	// arg: batch_id
+	{
+		batchIdBytes, marshalErr := ag_binary.MarshalBorsh(batchId)
+		if marshalErr != nil {
+			err = marshalErr
+			return
+		}
+		seeds = append(seeds, batchIdBytes)
 	}
-	seeds = append(seeds, batchIdSeed)
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -359,13 +362,13 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindFundWithdrawalBatchAc
 }
 
 // FindFundWithdrawalBatchAccountAddressWithBumpSeed calculates FundWithdrawalBatchAccount account address with given seeds and a known bump seed.
-func (inst *UserWithdrawSupportedTokenInstruction) FindFundWithdrawalBatchAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey, err error) {
-	pda, _, err = inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, supportedTokenMint, bumpSeed)
+func (inst *UserWithdrawSupportedTokenInstruction) FindFundWithdrawalBatchAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, batchId uint64, bumpSeed uint8) (pda ag_solanago.PublicKey, err error) {
+	pda, _, err = inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, supportedTokenMint, batchId, bumpSeed)
 	return
 }
 
-func (inst *UserWithdrawSupportedTokenInstruction) MustFindFundWithdrawalBatchAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, bumpSeed uint8) (pda ag_solanago.PublicKey) {
-	pda, _, err := inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, supportedTokenMint, bumpSeed)
+func (inst *UserWithdrawSupportedTokenInstruction) MustFindFundWithdrawalBatchAccountAddressWithBumpSeed(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, batchId uint64, bumpSeed uint8) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, supportedTokenMint, batchId, bumpSeed)
 	if err != nil {
 		panic(err)
 	}
@@ -373,13 +376,13 @@ func (inst *UserWithdrawSupportedTokenInstruction) MustFindFundWithdrawalBatchAc
 }
 
 // FindFundWithdrawalBatchAccountAddress finds FundWithdrawalBatchAccount account address with given seeds.
-func (inst *UserWithdrawSupportedTokenInstruction) FindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
-	pda, bumpSeed, err = inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, supportedTokenMint, 0)
+func (inst *UserWithdrawSupportedTokenInstruction) FindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, batchId uint64) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
+	pda, bumpSeed, err = inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, supportedTokenMint, batchId, 0)
 	return
 }
 
-func (inst *UserWithdrawSupportedTokenInstruction) MustFindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey) (pda ag_solanago.PublicKey) {
-	pda, _, err := inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, supportedTokenMint, 0)
+func (inst *UserWithdrawSupportedTokenInstruction) MustFindFundWithdrawalBatchAccountAddress(receiptTokenMint ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, batchId uint64) (pda ag_solanago.PublicKey) {
+	pda, _, err := inst.findFindFundWithdrawalBatchAccountAddress(receiptTokenMint, supportedTokenMint, batchId, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -401,17 +404,17 @@ func (inst *UserWithdrawSupportedTokenInstruction) SetFundSupportedTokenReserveA
 
 func (inst *UserWithdrawSupportedTokenInstruction) findFindFundSupportedTokenReserveAccountAddress(fundReserveAccount ag_solanago.PublicKey, supportedTokenProgram ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
-	// path: fundReserveAccount
+	// path: fund_reserve_account
 	seeds = append(seeds, fundReserveAccount.Bytes())
-	// path: supportedTokenProgram
+	// path: supported_token_program
 	seeds = append(seeds, supportedTokenProgram.Bytes())
-	// path: supportedTokenMint
+	// path: supported_token_mint
 	seeds = append(seeds, supportedTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -462,11 +465,11 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindFundTreasuryAccountAd
 	var seeds [][]byte
 	// const: fund_treasury
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64), byte(0x5f), byte(0x74), byte(0x72), byte(0x65), byte(0x61), byte(0x73), byte(0x75), byte(0x72), byte(0x79)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -517,13 +520,13 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindUserFundAccountAddres
 	var seeds [][]byte
 	// const: user_fund
 	seeds = append(seeds, []byte{byte(0x75), byte(0x73), byte(0x65), byte(0x72), byte(0x5f), byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 	// path: user
 	seeds = append(seeds, user.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -566,7 +569,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) GetUserFundAccountAccount() *
 
 // SetRewardAccountAccount sets the "reward_account" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetRewardAccountAccount(rewardAccount ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[14] = ag_solanago.Meta(rewardAccount).WRITE()
+	inst.AccountMetaSlice[14] = ag_solanago.Meta(rewardAccount)
 	return inst
 }
 
@@ -574,11 +577,11 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindRewardAccountAddress(
 	var seeds [][]byte
 	// const: reward
 	seeds = append(seeds, []byte{byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -621,7 +624,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) GetRewardAccountAccount() *ag
 
 // SetUserRewardAccountAccount sets the "user_reward_account" account.
 func (inst *UserWithdrawSupportedTokenInstruction) SetUserRewardAccountAccount(userRewardAccount ag_solanago.PublicKey) *UserWithdrawSupportedTokenInstruction {
-	inst.AccountMetaSlice[15] = ag_solanago.Meta(userRewardAccount).WRITE()
+	inst.AccountMetaSlice[15] = ag_solanago.Meta(userRewardAccount)
 	return inst
 }
 
@@ -629,13 +632,13 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindUserRewardAccountAddr
 	var seeds [][]byte
 	// const: user_reward
 	seeds = append(seeds, []byte{byte(0x75), byte(0x73), byte(0x65), byte(0x72), byte(0x5f), byte(0x72), byte(0x65), byte(0x77), byte(0x61), byte(0x72), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 	// path: user
 	seeds = append(seeds, user.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -699,7 +702,7 @@ func (inst *UserWithdrawSupportedTokenInstruction) findFindEventAuthorityAddress
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)

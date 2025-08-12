@@ -12,9 +12,7 @@ import (
 
 // FundManagerAddTokenSwapStrategy is the `fund_manager_add_token_swap_strategy` instruction.
 type FundManagerAddTokenSwapStrategyInstruction struct {
-	FromTokenMint *ag_solanago.PublicKey
-	ToTokenMint   *ag_solanago.PublicKey
-	SwapSource    *TokenSwapSource
+	SwapSource *TokenSwapSource
 
 	// [0] = [SIGNER] fund_manager
 	//
@@ -22,31 +20,25 @@ type FundManagerAddTokenSwapStrategyInstruction struct {
 	//
 	// [2] = [WRITE] fund_account
 	//
-	// [3] = [] event_authority
+	// [3] = [] from_token_mint
 	//
-	// [4] = [] program
+	// [4] = [] to_token_mint
+	//
+	// [5] = [] swap_source_account
+	//
+	// [6] = [] event_authority
+	//
+	// [7] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewFundManagerAddTokenSwapStrategyInstructionBuilder creates a new `FundManagerAddTokenSwapStrategyInstruction` instruction builder.
 func NewFundManagerAddTokenSwapStrategyInstructionBuilder() *FundManagerAddTokenSwapStrategyInstruction {
 	nd := &FundManagerAddTokenSwapStrategyInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 8),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	return nd
-}
-
-// SetFromTokenMint sets the "from_token_mint" parameter.
-func (inst *FundManagerAddTokenSwapStrategyInstruction) SetFromTokenMint(from_token_mint ag_solanago.PublicKey) *FundManagerAddTokenSwapStrategyInstruction {
-	inst.FromTokenMint = &from_token_mint
-	return inst
-}
-
-// SetToTokenMint sets the "to_token_mint" parameter.
-func (inst *FundManagerAddTokenSwapStrategyInstruction) SetToTokenMint(to_token_mint ag_solanago.PublicKey) *FundManagerAddTokenSwapStrategyInstruction {
-	inst.ToTokenMint = &to_token_mint
-	return inst
 }
 
 // SetSwapSource sets the "swap_source" parameter.
@@ -87,11 +79,11 @@ func (inst *FundManagerAddTokenSwapStrategyInstruction) findFindFundAccountAddre
 	var seeds [][]byte
 	// const: fund
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -132,9 +124,42 @@ func (inst *FundManagerAddTokenSwapStrategyInstruction) GetFundAccountAccount() 
 	return inst.AccountMetaSlice.Get(2)
 }
 
+// SetFromTokenMintAccount sets the "from_token_mint" account.
+func (inst *FundManagerAddTokenSwapStrategyInstruction) SetFromTokenMintAccount(fromTokenMint ag_solanago.PublicKey) *FundManagerAddTokenSwapStrategyInstruction {
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(fromTokenMint)
+	return inst
+}
+
+// GetFromTokenMintAccount gets the "from_token_mint" account.
+func (inst *FundManagerAddTokenSwapStrategyInstruction) GetFromTokenMintAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(3)
+}
+
+// SetToTokenMintAccount sets the "to_token_mint" account.
+func (inst *FundManagerAddTokenSwapStrategyInstruction) SetToTokenMintAccount(toTokenMint ag_solanago.PublicKey) *FundManagerAddTokenSwapStrategyInstruction {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(toTokenMint)
+	return inst
+}
+
+// GetToTokenMintAccount gets the "to_token_mint" account.
+func (inst *FundManagerAddTokenSwapStrategyInstruction) GetToTokenMintAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(4)
+}
+
+// SetSwapSourceAccountAccount sets the "swap_source_account" account.
+func (inst *FundManagerAddTokenSwapStrategyInstruction) SetSwapSourceAccountAccount(swapSourceAccount ag_solanago.PublicKey) *FundManagerAddTokenSwapStrategyInstruction {
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(swapSourceAccount)
+	return inst
+}
+
+// GetSwapSourceAccountAccount gets the "swap_source_account" account.
+func (inst *FundManagerAddTokenSwapStrategyInstruction) GetSwapSourceAccountAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(5)
+}
+
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *FundManagerAddTokenSwapStrategyInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *FundManagerAddTokenSwapStrategyInstruction {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -144,7 +169,7 @@ func (inst *FundManagerAddTokenSwapStrategyInstruction) findFindEventAuthorityAd
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -182,18 +207,18 @@ func (inst *FundManagerAddTokenSwapStrategyInstruction) MustFindEventAuthorityAd
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *FundManagerAddTokenSwapStrategyInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
+	return inst.AccountMetaSlice.Get(6)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *FundManagerAddTokenSwapStrategyInstruction) SetProgramAccount(program ag_solanago.PublicKey) *FundManagerAddTokenSwapStrategyInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *FundManagerAddTokenSwapStrategyInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
+	return inst.AccountMetaSlice.Get(7)
 }
 
 func (inst FundManagerAddTokenSwapStrategyInstruction) Build() *Instruction {
@@ -216,12 +241,6 @@ func (inst FundManagerAddTokenSwapStrategyInstruction) ValidateAndBuild() (*Inst
 func (inst *FundManagerAddTokenSwapStrategyInstruction) Validate() error {
 	// Check whether all (required) parameters are set:
 	{
-		if inst.FromTokenMint == nil {
-			return errors.New("FromTokenMint parameter is not set")
-		}
-		if inst.ToTokenMint == nil {
-			return errors.New("ToTokenMint parameter is not set")
-		}
 		if inst.SwapSource == nil {
 			return errors.New("SwapSource parameter is not set")
 		}
@@ -239,9 +258,18 @@ func (inst *FundManagerAddTokenSwapStrategyInstruction) Validate() error {
 			return errors.New("accounts.FundAccount is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.EventAuthority is not set")
+			return errors.New("accounts.FromTokenMint is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
+			return errors.New("accounts.ToTokenMint is not set")
+		}
+		if inst.AccountMetaSlice[5] == nil {
+			return errors.New("accounts.SwapSourceAccount is not set")
+		}
+		if inst.AccountMetaSlice[6] == nil {
+			return errors.New("accounts.EventAuthority is not set")
+		}
+		if inst.AccountMetaSlice[7] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -257,35 +285,26 @@ func (inst *FundManagerAddTokenSwapStrategyInstruction) EncodeToTree(parent ag_t
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=3]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("  FromTokenMint", *inst.FromTokenMint))
-						paramsBranch.Child(ag_format.Param("    ToTokenMint", *inst.ToTokenMint))
-						paramsBranch.Child(ag_format.Param("     SwapSource", inst.SwapSource))
+					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
+						paramsBranch.Child(ag_format.Param(" SwapSource", inst.SwapSource))
 					})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=5]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Accounts[len=8]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
 						accountsBranch.Child(ag_format.Meta("      fund_manager", inst.AccountMetaSlice.Get(0)))
 						accountsBranch.Child(ag_format.Meta("receipt_token_mint", inst.AccountMetaSlice.Get(1)))
 						accountsBranch.Child(ag_format.Meta("             fund_", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("   from_token_mint", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("     to_token_mint", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("      swap_source_", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(7)))
 					})
 				})
 		})
 }
 
 func (obj FundManagerAddTokenSwapStrategyInstruction) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `FromTokenMint` param:
-	err = encoder.Encode(obj.FromTokenMint)
-	if err != nil {
-		return err
-	}
-	// Serialize `ToTokenMint` param:
-	err = encoder.Encode(obj.ToTokenMint)
-	if err != nil {
-		return err
-	}
 	// Serialize `SwapSource` param:
 	err = encoder.Encode(obj.SwapSource)
 	if err != nil {
@@ -294,16 +313,6 @@ func (obj FundManagerAddTokenSwapStrategyInstruction) MarshalWithEncoder(encoder
 	return nil
 }
 func (obj *FundManagerAddTokenSwapStrategyInstruction) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `FromTokenMint`:
-	err = decoder.Decode(&obj.FromTokenMint)
-	if err != nil {
-		return err
-	}
-	// Deserialize `ToTokenMint`:
-	err = decoder.Decode(&obj.ToTokenMint)
-	if err != nil {
-		return err
-	}
 	// Deserialize `SwapSource`:
 	err = decoder.Decode(&obj.SwapSource)
 	if err != nil {
@@ -315,22 +324,24 @@ func (obj *FundManagerAddTokenSwapStrategyInstruction) UnmarshalWithDecoder(deco
 // NewFundManagerAddTokenSwapStrategyInstruction declares a new FundManagerAddTokenSwapStrategy instruction with the provided parameters and accounts.
 func NewFundManagerAddTokenSwapStrategyInstruction(
 	// Parameters:
-	from_token_mint ag_solanago.PublicKey,
-	to_token_mint ag_solanago.PublicKey,
 	swap_source TokenSwapSource,
 	// Accounts:
 	fundManager ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
 	fundAccount ag_solanago.PublicKey,
+	fromTokenMint ag_solanago.PublicKey,
+	toTokenMint ag_solanago.PublicKey,
+	swapSourceAccount ag_solanago.PublicKey,
 	eventAuthority ag_solanago.PublicKey,
 	program ag_solanago.PublicKey) *FundManagerAddTokenSwapStrategyInstruction {
 	return NewFundManagerAddTokenSwapStrategyInstructionBuilder().
-		SetFromTokenMint(from_token_mint).
-		SetToTokenMint(to_token_mint).
 		SetSwapSource(swap_source).
 		SetFundManagerAccount(fundManager).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetFundAccountAccount(fundAccount).
+		SetFromTokenMintAccount(fromTokenMint).
+		SetToTokenMintAccount(toTokenMint).
+		SetSwapSourceAccountAccount(swapSourceAccount).
 		SetEventAuthorityAccount(eventAuthority).
 		SetProgramAccount(program)
 }

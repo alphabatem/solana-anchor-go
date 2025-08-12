@@ -15,36 +15,33 @@ type OperatorDonateSupportedTokenToFundInstruction struct {
 	Amount           *uint64
 	OffsetReceivable *bool
 
-	// [0] = [WRITE, SIGNER] operator
+	// [0] = [SIGNER] operator
 	//
-	// [1] = [] receipt_token_program
+	// [1] = [] supported_token_program
 	//
-	// [2] = [] supported_token_program
+	// [2] = [] receipt_token_mint
 	//
-	// [3] = [] receipt_token_mint
+	// [3] = [] supported_token_mint
 	//
-	// [4] = [] supported_token_mint
+	// [4] = [WRITE] fund_supported_token_reserve_account
 	//
-	// [5] = [WRITE] fund_supported_token_reserve_account
+	// [5] = [WRITE] operator_supported_token_account
 	//
-	// [6] = [WRITE] operator_supported_token_account
+	// [6] = [WRITE] fund_account
 	//
-	// [7] = [WRITE] fund_account
+	// [7] = [] fund_reserve_account
 	//
-	// [8] = [] fund_reserve_account
+	// [8] = [] event_authority
 	//
-	// [9] = [] event_authority
-	//
-	// [10] = [] program
+	// [9] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewOperatorDonateSupportedTokenToFundInstructionBuilder creates a new `OperatorDonateSupportedTokenToFundInstruction` instruction builder.
 func NewOperatorDonateSupportedTokenToFundInstructionBuilder() *OperatorDonateSupportedTokenToFundInstruction {
 	nd := &OperatorDonateSupportedTokenToFundInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 11),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 10),
 	}
-	nd.AccountMetaSlice[1] = ag_solanago.Meta(Addresses["TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"])
 	return nd
 }
 
@@ -62,7 +59,7 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) SetOffsetReceivable(o
 
 // SetOperatorAccount sets the "operator" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetOperatorAccount(operator ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(operator).WRITE().SIGNER()
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(operator).SIGNER()
 	return inst
 }
 
@@ -71,69 +68,58 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) GetOperatorAccount() 
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetReceiptTokenProgramAccount sets the "receipt_token_program" account.
-func (inst *OperatorDonateSupportedTokenToFundInstruction) SetReceiptTokenProgramAccount(receiptTokenProgram ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(receiptTokenProgram)
-	return inst
-}
-
-// GetReceiptTokenProgramAccount gets the "receipt_token_program" account.
-func (inst *OperatorDonateSupportedTokenToFundInstruction) GetReceiptTokenProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(1)
-}
-
 // SetSupportedTokenProgramAccount sets the "supported_token_program" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetSupportedTokenProgramAccount(supportedTokenProgram ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(supportedTokenProgram)
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(supportedTokenProgram)
 	return inst
 }
 
 // GetSupportedTokenProgramAccount gets the "supported_token_program" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetSupportedTokenProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(2)
+	return inst.AccountMetaSlice.Get(1)
 }
 
 // SetReceiptTokenMintAccount sets the "receipt_token_mint" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetReceiptTokenMintAccount(receiptTokenMint ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(receiptTokenMint)
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(receiptTokenMint)
 	return inst
 }
 
 // GetReceiptTokenMintAccount gets the "receipt_token_mint" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetReceiptTokenMintAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
+	return inst.AccountMetaSlice.Get(2)
 }
 
 // SetSupportedTokenMintAccount sets the "supported_token_mint" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetSupportedTokenMintAccount(supportedTokenMint ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(supportedTokenMint)
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(supportedTokenMint)
 	return inst
 }
 
 // GetSupportedTokenMintAccount gets the "supported_token_mint" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetSupportedTokenMintAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
+	return inst.AccountMetaSlice.Get(3)
 }
 
 // SetFundSupportedTokenReserveAccountAccount sets the "fund_supported_token_reserve_account" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetFundSupportedTokenReserveAccountAccount(fundSupportedTokenReserveAccount ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(fundSupportedTokenReserveAccount).WRITE()
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(fundSupportedTokenReserveAccount).WRITE()
 	return inst
 }
 
 func (inst *OperatorDonateSupportedTokenToFundInstruction) findFindFundSupportedTokenReserveAccountAddress(fundReserveAccount ag_solanago.PublicKey, supportedTokenProgram ag_solanago.PublicKey, supportedTokenMint ag_solanago.PublicKey, knownBumpSeed uint8) (pda ag_solanago.PublicKey, bumpSeed uint8, err error) {
 	var seeds [][]byte
-	// path: fundReserveAccount
+	// path: fund_reserve_account
 	seeds = append(seeds, fundReserveAccount.Bytes())
-	// path: supportedTokenProgram
+	// path: supported_token_program
 	seeds = append(seeds, supportedTokenProgram.Bytes())
-	// path: supportedTokenMint
+	// path: supported_token_mint
 	seeds = append(seeds, supportedTokenMint.Bytes())
 
 	programID := Addresses["ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"]
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, programID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, programID)
@@ -171,23 +157,23 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) MustFindFundSupported
 
 // GetFundSupportedTokenReserveAccountAccount gets the "fund_supported_token_reserve_account" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetFundSupportedTokenReserveAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(5)
+	return inst.AccountMetaSlice.Get(4)
 }
 
 // SetOperatorSupportedTokenAccountAccount sets the "operator_supported_token_account" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetOperatorSupportedTokenAccountAccount(operatorSupportedTokenAccount ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(operatorSupportedTokenAccount).WRITE()
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(operatorSupportedTokenAccount).WRITE()
 	return inst
 }
 
 // GetOperatorSupportedTokenAccountAccount gets the "operator_supported_token_account" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetOperatorSupportedTokenAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(6)
+	return inst.AccountMetaSlice.Get(5)
 }
 
 // SetFundAccountAccount sets the "fund_account" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetFundAccountAccount(fundAccount ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(fundAccount).WRITE()
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(fundAccount).WRITE()
 	return inst
 }
 
@@ -195,11 +181,11 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) findFindFundAccountAd
 	var seeds [][]byte
 	// const: fund
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -237,12 +223,12 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) MustFindFundAccountAd
 
 // GetFundAccountAccount gets the "fund_account" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetFundAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(7)
+	return inst.AccountMetaSlice.Get(6)
 }
 
 // SetFundReserveAccountAccount sets the "fund_reserve_account" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetFundReserveAccountAccount(fundReserveAccount ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[8] = ag_solanago.Meta(fundReserveAccount)
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(fundReserveAccount)
 	return inst
 }
 
@@ -250,11 +236,11 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) findFindFundReserveAc
 	var seeds [][]byte
 	// const: fund_reserve
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64), byte(0x5f), byte(0x72), byte(0x65), byte(0x73), byte(0x65), byte(0x72), byte(0x76), byte(0x65)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -292,12 +278,12 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) MustFindFundReserveAc
 
 // GetFundReserveAccountAccount gets the "fund_reserve_account" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetFundReserveAccountAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(8)
+	return inst.AccountMetaSlice.Get(7)
 }
 
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[9] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[8] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -307,7 +293,7 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) findFindEventAuthorit
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -345,18 +331,18 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) MustFindEventAuthorit
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(9)
+	return inst.AccountMetaSlice.Get(8)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) SetProgramAccount(program ag_solanago.PublicKey) *OperatorDonateSupportedTokenToFundInstruction {
-	inst.AccountMetaSlice[10] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[9] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *OperatorDonateSupportedTokenToFundInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(10)
+	return inst.AccountMetaSlice.Get(9)
 }
 
 func (inst OperatorDonateSupportedTokenToFundInstruction) Build() *Instruction {
@@ -393,33 +379,30 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) Validate() error {
 			return errors.New("accounts.Operator is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.ReceiptTokenProgram is not set")
-		}
-		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.SupportedTokenProgram is not set")
 		}
-		if inst.AccountMetaSlice[3] == nil {
+		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.ReceiptTokenMint is not set")
 		}
-		if inst.AccountMetaSlice[4] == nil {
+		if inst.AccountMetaSlice[3] == nil {
 			return errors.New("accounts.SupportedTokenMint is not set")
 		}
-		if inst.AccountMetaSlice[5] == nil {
+		if inst.AccountMetaSlice[4] == nil {
 			return errors.New("accounts.FundSupportedTokenReserveAccount is not set")
 		}
-		if inst.AccountMetaSlice[6] == nil {
+		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.OperatorSupportedTokenAccount is not set")
 		}
-		if inst.AccountMetaSlice[7] == nil {
+		if inst.AccountMetaSlice[6] == nil {
 			return errors.New("accounts.FundAccount is not set")
 		}
-		if inst.AccountMetaSlice[8] == nil {
+		if inst.AccountMetaSlice[7] == nil {
 			return errors.New("accounts.FundReserveAccount is not set")
 		}
-		if inst.AccountMetaSlice[9] == nil {
+		if inst.AccountMetaSlice[8] == nil {
 			return errors.New("accounts.EventAuthority is not set")
 		}
-		if inst.AccountMetaSlice[10] == nil {
+		if inst.AccountMetaSlice[9] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -441,18 +424,17 @@ func (inst *OperatorDonateSupportedTokenToFundInstruction) EncodeToTree(parent a
 					})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=11]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Accounts[len=10]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
 						accountsBranch.Child(ag_format.Meta("                     operator", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("        receipt_token_program", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("      supported_token_program", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("           receipt_token_mint", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("         supported_token_mint", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("fund_supported_token_reserve_", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("    operator_supported_token_", inst.AccountMetaSlice.Get(6)))
-						accountsBranch.Child(ag_format.Meta("                        fund_", inst.AccountMetaSlice.Get(7)))
-						accountsBranch.Child(ag_format.Meta("                fund_reserve_", inst.AccountMetaSlice.Get(8)))
-						accountsBranch.Child(ag_format.Meta("              event_authority", inst.AccountMetaSlice.Get(9)))
-						accountsBranch.Child(ag_format.Meta("                      program", inst.AccountMetaSlice.Get(10)))
+						accountsBranch.Child(ag_format.Meta("      supported_token_program", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("           receipt_token_mint", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("         supported_token_mint", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("fund_supported_token_reserve_", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("    operator_supported_token_", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("                        fund_", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("                fund_reserve_", inst.AccountMetaSlice.Get(7)))
+						accountsBranch.Child(ag_format.Meta("              event_authority", inst.AccountMetaSlice.Get(8)))
+						accountsBranch.Child(ag_format.Meta("                      program", inst.AccountMetaSlice.Get(9)))
 					})
 				})
 		})
@@ -492,7 +474,6 @@ func NewOperatorDonateSupportedTokenToFundInstruction(
 	offset_receivable bool,
 	// Accounts:
 	operator ag_solanago.PublicKey,
-	receiptTokenProgram ag_solanago.PublicKey,
 	supportedTokenProgram ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
 	supportedTokenMint ag_solanago.PublicKey,
@@ -506,7 +487,6 @@ func NewOperatorDonateSupportedTokenToFundInstruction(
 		SetAmount(amount).
 		SetOffsetReceivable(offset_receivable).
 		SetOperatorAccount(operator).
-		SetReceiptTokenProgramAccount(receiptTokenProgram).
 		SetSupportedTokenProgramAccount(supportedTokenProgram).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetSupportedTokenMintAccount(supportedTokenMint).

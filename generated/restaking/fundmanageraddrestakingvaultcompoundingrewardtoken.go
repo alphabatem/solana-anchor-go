@@ -12,8 +12,7 @@ import (
 
 // FundManagerAddRestakingVaultCompoundingRewardToken is the `fund_manager_add_restaking_vault_compounding_reward_token` instruction.
 type FundManagerAddRestakingVaultCompoundingRewardTokenInstruction struct {
-	Vault                      *ag_solanago.PublicKey
-	CompoundingRewardTokenMint *ag_solanago.PublicKey
+	Vault *ag_solanago.PublicKey
 
 	// [0] = [SIGNER] fund_manager
 	//
@@ -21,30 +20,26 @@ type FundManagerAddRestakingVaultCompoundingRewardTokenInstruction struct {
 	//
 	// [2] = [WRITE] fund_account
 	//
-	// [3] = [] event_authority
+	// [3] = [] reward_token_mint
 	//
-	// [4] = [] program
+	// [4] = [] event_authority
+	//
+	// [5] = [] program
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewFundManagerAddRestakingVaultCompoundingRewardTokenInstructionBuilder creates a new `FundManagerAddRestakingVaultCompoundingRewardTokenInstruction` instruction builder.
 func NewFundManagerAddRestakingVaultCompoundingRewardTokenInstructionBuilder() *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction {
 	nd := &FundManagerAddRestakingVaultCompoundingRewardTokenInstruction{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 6),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	return nd
 }
 
 // SetVault sets the "vault" parameter.
 func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) SetVault(vault ag_solanago.PublicKey) *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction {
 	inst.Vault = &vault
-	return inst
-}
-
-// SetCompoundingRewardTokenMint sets the "compounding_reward_token_mint" parameter.
-func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) SetCompoundingRewardTokenMint(compounding_reward_token_mint ag_solanago.PublicKey) *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction {
-	inst.CompoundingRewardTokenMint = &compounding_reward_token_mint
 	return inst
 }
 
@@ -80,11 +75,11 @@ func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) findF
 	var seeds [][]byte
 	// const: fund
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -125,9 +120,20 @@ func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) GetFu
 	return inst.AccountMetaSlice.Get(2)
 }
 
+// SetRewardTokenMintAccount sets the "reward_token_mint" account.
+func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) SetRewardTokenMintAccount(rewardTokenMint ag_solanago.PublicKey) *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction {
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(rewardTokenMint)
+	return inst
+}
+
+// GetRewardTokenMintAccount gets the "reward_token_mint" account.
+func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) GetRewardTokenMintAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(3)
+}
+
 // SetEventAuthorityAccount sets the "event_authority" account.
 func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) SetEventAuthorityAccount(eventAuthority ag_solanago.PublicKey) *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(eventAuthority)
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(eventAuthority)
 	return inst
 }
 
@@ -137,7 +143,7 @@ func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) findF
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -175,18 +181,18 @@ func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) MustF
 
 // GetEventAuthorityAccount gets the "event_authority" account.
 func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) GetEventAuthorityAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
+	return inst.AccountMetaSlice.Get(4)
 }
 
 // SetProgramAccount sets the "program" account.
 func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) SetProgramAccount(program ag_solanago.PublicKey) *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(program)
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(program)
 	return inst
 }
 
 // GetProgramAccount gets the "program" account.
 func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) GetProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
+	return inst.AccountMetaSlice.Get(5)
 }
 
 func (inst FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) Build() *Instruction {
@@ -212,9 +218,6 @@ func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) Valid
 		if inst.Vault == nil {
 			return errors.New("Vault parameter is not set")
 		}
-		if inst.CompoundingRewardTokenMint == nil {
-			return errors.New("CompoundingRewardTokenMint parameter is not set")
-		}
 	}
 
 	// Check whether all (required) accounts are set:
@@ -229,9 +232,12 @@ func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) Valid
 			return errors.New("accounts.FundAccount is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.EventAuthority is not set")
+			return errors.New("accounts.RewardTokenMint is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
+			return errors.New("accounts.EventAuthority is not set")
+		}
+		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.Program is not set")
 		}
 	}
@@ -247,18 +253,18 @@ func (inst *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) Encod
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=2]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("                        Vault", *inst.Vault))
-						paramsBranch.Child(ag_format.Param("   CompoundingRewardTokenMint", *inst.CompoundingRewardTokenMint))
+					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
+						paramsBranch.Child(ag_format.Param("Vault", *inst.Vault))
 					})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=5]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Accounts[len=6]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
 						accountsBranch.Child(ag_format.Meta("      fund_manager", inst.AccountMetaSlice.Get(0)))
 						accountsBranch.Child(ag_format.Meta("receipt_token_mint", inst.AccountMetaSlice.Get(1)))
 						accountsBranch.Child(ag_format.Meta("             fund_", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta(" reward_token_mint", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("   event_authority", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("           program", inst.AccountMetaSlice.Get(5)))
 					})
 				})
 		})
@@ -270,21 +276,11 @@ func (obj FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) Marshal
 	if err != nil {
 		return err
 	}
-	// Serialize `CompoundingRewardTokenMint` param:
-	err = encoder.Encode(obj.CompoundingRewardTokenMint)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 func (obj *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
 	// Deserialize `Vault`:
 	err = decoder.Decode(&obj.Vault)
-	if err != nil {
-		return err
-	}
-	// Deserialize `CompoundingRewardTokenMint`:
-	err = decoder.Decode(&obj.CompoundingRewardTokenMint)
 	if err != nil {
 		return err
 	}
@@ -295,19 +291,19 @@ func (obj *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction) Unmars
 func NewFundManagerAddRestakingVaultCompoundingRewardTokenInstruction(
 	// Parameters:
 	vault ag_solanago.PublicKey,
-	compounding_reward_token_mint ag_solanago.PublicKey,
 	// Accounts:
 	fundManager ag_solanago.PublicKey,
 	receiptTokenMint ag_solanago.PublicKey,
 	fundAccount ag_solanago.PublicKey,
+	rewardTokenMint ag_solanago.PublicKey,
 	eventAuthority ag_solanago.PublicKey,
 	program ag_solanago.PublicKey) *FundManagerAddRestakingVaultCompoundingRewardTokenInstruction {
 	return NewFundManagerAddRestakingVaultCompoundingRewardTokenInstructionBuilder().
 		SetVault(vault).
-		SetCompoundingRewardTokenMint(compounding_reward_token_mint).
 		SetFundManagerAccount(fundManager).
 		SetReceiptTokenMintAccount(receiptTokenMint).
 		SetFundAccountAccount(fundAccount).
+		SetRewardTokenMintAccount(rewardTokenMint).
 		SetEventAuthorityAccount(eventAuthority).
 		SetProgramAccount(program)
 }

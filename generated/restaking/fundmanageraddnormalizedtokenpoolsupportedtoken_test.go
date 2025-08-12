@@ -157,6 +157,86 @@ func TestEncodeDecode_FundManagerAddNormalizedTokenPoolSupportedToken(t *testing
 						}
 						ag_require.Equal(t, params, got)
 					}
+					{
+						params := new(FundManagerAddNormalizedTokenPoolSupportedTokenInstruction)
+						fu.Fuzz(params)
+						params.AccountMetaSlice = nil
+						tmp := new(TokenPricingSourcePeggedTokenTuple)
+						fu.Fuzz(tmp)
+						params.SetPricingSource(TokenPricingSource{*tmp})
+						buf := new(bytes.Buffer)
+						err := encodeT(*params, buf)
+						ag_require.NoError(t, err)
+						got := new(FundManagerAddNormalizedTokenPoolSupportedTokenInstruction)
+						err = decodeT(got, buf.Bytes())
+						got.AccountMetaSlice = nil
+						ag_require.NoError(t, err)
+						// to prevent garbage buffer fill by fuzz
+						if reflect.TypeOf(*tmp).Kind() != reflect.Struct {
+							got.PricingSource = params.PricingSource
+						}
+						ag_require.Equal(t, params, got)
+					}
+					{
+						params := new(FundManagerAddNormalizedTokenPoolSupportedTokenInstruction)
+						fu.Fuzz(params)
+						params.AccountMetaSlice = nil
+						tmp := new(TokenPricingSourceSolvBTCVaultTuple)
+						fu.Fuzz(tmp)
+						params.SetPricingSource(TokenPricingSource{*tmp})
+						buf := new(bytes.Buffer)
+						err := encodeT(*params, buf)
+						ag_require.NoError(t, err)
+						got := new(FundManagerAddNormalizedTokenPoolSupportedTokenInstruction)
+						err = decodeT(got, buf.Bytes())
+						got.AccountMetaSlice = nil
+						ag_require.NoError(t, err)
+						// to prevent garbage buffer fill by fuzz
+						if reflect.TypeOf(*tmp).Kind() != reflect.Struct {
+							got.PricingSource = params.PricingSource
+						}
+						ag_require.Equal(t, params, got)
+					}
+					{
+						params := new(FundManagerAddNormalizedTokenPoolSupportedTokenInstruction)
+						fu.Fuzz(params)
+						params.AccountMetaSlice = nil
+						tmp := new(TokenPricingSourceSanctumMultiValidatorSPLStakePoolTuple)
+						fu.Fuzz(tmp)
+						params.SetPricingSource(TokenPricingSource{*tmp})
+						buf := new(bytes.Buffer)
+						err := encodeT(*params, buf)
+						ag_require.NoError(t, err)
+						got := new(FundManagerAddNormalizedTokenPoolSupportedTokenInstruction)
+						err = decodeT(got, buf.Bytes())
+						got.AccountMetaSlice = nil
+						ag_require.NoError(t, err)
+						// to prevent garbage buffer fill by fuzz
+						if reflect.TypeOf(*tmp).Kind() != reflect.Struct {
+							got.PricingSource = params.PricingSource
+						}
+						ag_require.Equal(t, params, got)
+					}
+					{
+						params := new(FundManagerAddNormalizedTokenPoolSupportedTokenInstruction)
+						fu.Fuzz(params)
+						params.AccountMetaSlice = nil
+						tmp := new(TokenPricingSourceVirtualVaultTuple)
+						fu.Fuzz(tmp)
+						params.SetPricingSource(TokenPricingSource{*tmp})
+						buf := new(bytes.Buffer)
+						err := encodeT(*params, buf)
+						ag_require.NoError(t, err)
+						got := new(FundManagerAddNormalizedTokenPoolSupportedTokenInstruction)
+						err = decodeT(got, buf.Bytes())
+						got.AccountMetaSlice = nil
+						ag_require.NoError(t, err)
+						// to prevent garbage buffer fill by fuzz
+						if reflect.TypeOf(*tmp).Kind() != reflect.Struct {
+							got.PricingSource = params.PricingSource
+						}
+						ag_require.Equal(t, params, got)
+					}
 				}
 			}
 		})

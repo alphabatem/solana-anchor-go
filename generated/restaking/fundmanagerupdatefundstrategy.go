@@ -16,6 +16,7 @@ type FundManagerUpdateFundStrategyInstruction struct {
 	DonationEnabled                 *bool
 	WithdrawalEnabled               *bool
 	TransferEnabled                 *bool
+	OperationEnabled                *bool
 	WithdrawalFeeRateBps            *uint16
 	WithdrawalBatchThresholdSeconds *int64
 
@@ -36,7 +37,7 @@ func NewFundManagerUpdateFundStrategyInstructionBuilder() *FundManagerUpdateFund
 	nd := &FundManagerUpdateFundStrategyInstruction{
 		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
 	}
-	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5UpLTLA7Wjqp7qdfjuTtPcUw3aVtbqFA5Mgm34mxPNg2"]).SIGNER()
+	nd.AccountMetaSlice[0] = ag_solanago.Meta(Addresses["5FjrErTQ9P1ThYVdY9RamrPUCQGTMCcczUjH21iKzbwx"]).SIGNER()
 	return nd
 }
 
@@ -61,6 +62,12 @@ func (inst *FundManagerUpdateFundStrategyInstruction) SetWithdrawalEnabled(withd
 // SetTransferEnabled sets the "transfer_enabled" parameter.
 func (inst *FundManagerUpdateFundStrategyInstruction) SetTransferEnabled(transfer_enabled bool) *FundManagerUpdateFundStrategyInstruction {
 	inst.TransferEnabled = &transfer_enabled
+	return inst
+}
+
+// SetOperationEnabled sets the "operation_enabled" parameter.
+func (inst *FundManagerUpdateFundStrategyInstruction) SetOperationEnabled(operation_enabled bool) *FundManagerUpdateFundStrategyInstruction {
+	inst.OperationEnabled = &operation_enabled
 	return inst
 }
 
@@ -108,11 +115,11 @@ func (inst *FundManagerUpdateFundStrategyInstruction) findFindFundAccountAddress
 	var seeds [][]byte
 	// const: fund
 	seeds = append(seeds, []byte{byte(0x66), byte(0x75), byte(0x6e), byte(0x64)})
-	// path: receiptTokenMint
+	// path: receipt_token_mint
 	seeds = append(seeds, receiptTokenMint.Bytes())
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -165,7 +172,7 @@ func (inst *FundManagerUpdateFundStrategyInstruction) findFindEventAuthorityAddr
 	seeds = append(seeds, []byte{byte(0x5f), byte(0x5f), byte(0x65), byte(0x76), byte(0x65), byte(0x6e), byte(0x74), byte(0x5f), byte(0x61), byte(0x75), byte(0x74), byte(0x68), byte(0x6f), byte(0x72), byte(0x69), byte(0x74), byte(0x79)})
 
 	if knownBumpSeed != 0 {
-		seeds = append(seeds, []byte{byte(bumpSeed)})
+		seeds = append(seeds, []byte{byte(knownBumpSeed)})
 		pda, err = ag_solanago.CreateProgramAddress(seeds, ProgramID)
 	} else {
 		pda, bumpSeed, err = ag_solanago.FindProgramAddress(seeds, ProgramID)
@@ -249,6 +256,9 @@ func (inst *FundManagerUpdateFundStrategyInstruction) Validate() error {
 		if inst.TransferEnabled == nil {
 			return errors.New("TransferEnabled parameter is not set")
 		}
+		if inst.OperationEnabled == nil {
+			return errors.New("OperationEnabled parameter is not set")
+		}
 		if inst.WithdrawalFeeRateBps == nil {
 			return errors.New("WithdrawalFeeRateBps parameter is not set")
 		}
@@ -287,11 +297,12 @@ func (inst *FundManagerUpdateFundStrategyInstruction) EncodeToTree(parent ag_tre
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=6]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Params[len=7]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
 						paramsBranch.Child(ag_format.Param("                    DepositEnabled", *inst.DepositEnabled))
 						paramsBranch.Child(ag_format.Param("                   DonationEnabled", *inst.DonationEnabled))
 						paramsBranch.Child(ag_format.Param("                 WithdrawalEnabled", *inst.WithdrawalEnabled))
 						paramsBranch.Child(ag_format.Param("                   TransferEnabled", *inst.TransferEnabled))
+						paramsBranch.Child(ag_format.Param("                  OperationEnabled", *inst.OperationEnabled))
 						paramsBranch.Child(ag_format.Param("              WithdrawalFeeRateBps", *inst.WithdrawalFeeRateBps))
 						paramsBranch.Child(ag_format.Param("   WithdrawalBatchThresholdSeconds", *inst.WithdrawalBatchThresholdSeconds))
 					})
@@ -329,6 +340,11 @@ func (obj FundManagerUpdateFundStrategyInstruction) MarshalWithEncoder(encoder *
 	if err != nil {
 		return err
 	}
+	// Serialize `OperationEnabled` param:
+	err = encoder.Encode(obj.OperationEnabled)
+	if err != nil {
+		return err
+	}
 	// Serialize `WithdrawalFeeRateBps` param:
 	err = encoder.Encode(obj.WithdrawalFeeRateBps)
 	if err != nil {
@@ -362,6 +378,11 @@ func (obj *FundManagerUpdateFundStrategyInstruction) UnmarshalWithDecoder(decode
 	if err != nil {
 		return err
 	}
+	// Deserialize `OperationEnabled`:
+	err = decoder.Decode(&obj.OperationEnabled)
+	if err != nil {
+		return err
+	}
 	// Deserialize `WithdrawalFeeRateBps`:
 	err = decoder.Decode(&obj.WithdrawalFeeRateBps)
 	if err != nil {
@@ -382,6 +403,7 @@ func NewFundManagerUpdateFundStrategyInstruction(
 	donation_enabled bool,
 	withdrawal_enabled bool,
 	transfer_enabled bool,
+	operation_enabled bool,
 	withdrawal_fee_rate_bps uint16,
 	withdrawal_batch_threshold_seconds int64,
 	// Accounts:
@@ -395,6 +417,7 @@ func NewFundManagerUpdateFundStrategyInstruction(
 		SetDonationEnabled(donation_enabled).
 		SetWithdrawalEnabled(withdrawal_enabled).
 		SetTransferEnabled(transfer_enabled).
+		SetOperationEnabled(operation_enabled).
 		SetWithdrawalFeeRateBps(withdrawal_fee_rate_bps).
 		SetWithdrawalBatchThresholdSeconds(withdrawal_batch_threshold_seconds).
 		SetFundManagerAccount(fundManager).

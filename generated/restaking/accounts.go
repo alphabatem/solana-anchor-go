@@ -37,24 +37,31 @@ type FundAccountAccount struct {
 	WithdrawalEnabled                       uint8
 	DepositEnabled                          uint8
 	DonationEnabled                         uint8
-	Padding4                                [3]uint8
+	OperationEnabled                        uint8
+	Padding3                                [2]uint8
 
 	// SOL deposit & withdrawal
 	Sol AssetState
 
 	// underlying assets
-	Padding6           [15]uint8
+	Padding4           [15]uint8
 	NumSupportedTokens uint8
-	SupportedTokens    [30]SupportedToken
+	SupportedTokens    [16]SupportedToken
+	Reserved2          [14192]uint8
+
+	// fund pricing source address information (support for third party integration)
+	NumPricingSourceAddresses uint8
+	PricingSourceAddresses    [33]ag_solanago.PublicKey
+	Reserved3                 [767]uint8
 
 	// optional basket of underlying assets
 	NormalizedToken NormalizedToken
 
 	// investments
-	Padding7           [15]uint8
+	Padding5           [15]uint8
 	NumRestakingVaults uint8
 	RestakingVaults    [16]RestakingVault
-	Padding8           [112]uint8
+	Reserved           [112]uint8
 
 	// fund operation state
 	Operation OperationState
@@ -65,9 +72,12 @@ type FundAccountAccount struct {
 
 	// which DEX to use for swap between two tokens
 	NumTokenSwapStrategies uint8
-	Padding9               [7]uint8
+	Padding6               [7]uint8
 	TokenSwapStrategies    [30]TokenSwapStrategy
-	Reserved               [3616]uint8
+
+	// for pricing precision enhancement in deposit
+	DepositResidualMicroReceiptTokenAmount uint64
+	Reserved1                              [3608]uint8
 }
 
 var FundAccountAccountDiscriminator = [8]byte{49, 104, 168, 214, 134, 180, 173, 154}
@@ -198,8 +208,13 @@ func (obj FundAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (er
 	if err != nil {
 		return err
 	}
-	// Serialize `Padding4` param:
-	err = encoder.Encode(obj.Padding4)
+	// Serialize `OperationEnabled` param:
+	err = encoder.Encode(obj.OperationEnabled)
+	if err != nil {
+		return err
+	}
+	// Serialize `Padding3` param:
+	err = encoder.Encode(obj.Padding3)
 	if err != nil {
 		return err
 	}
@@ -208,8 +223,8 @@ func (obj FundAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (er
 	if err != nil {
 		return err
 	}
-	// Serialize `Padding6` param:
-	err = encoder.Encode(obj.Padding6)
+	// Serialize `Padding4` param:
+	err = encoder.Encode(obj.Padding4)
 	if err != nil {
 		return err
 	}
@@ -223,13 +238,33 @@ func (obj FundAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (er
 	if err != nil {
 		return err
 	}
+	// Serialize `Reserved2` param:
+	err = encoder.Encode(obj.Reserved2)
+	if err != nil {
+		return err
+	}
+	// Serialize `NumPricingSourceAddresses` param:
+	err = encoder.Encode(obj.NumPricingSourceAddresses)
+	if err != nil {
+		return err
+	}
+	// Serialize `PricingSourceAddresses` param:
+	err = encoder.Encode(obj.PricingSourceAddresses)
+	if err != nil {
+		return err
+	}
+	// Serialize `Reserved3` param:
+	err = encoder.Encode(obj.Reserved3)
+	if err != nil {
+		return err
+	}
 	// Serialize `NormalizedToken` param:
 	err = encoder.Encode(obj.NormalizedToken)
 	if err != nil {
 		return err
 	}
-	// Serialize `Padding7` param:
-	err = encoder.Encode(obj.Padding7)
+	// Serialize `Padding5` param:
+	err = encoder.Encode(obj.Padding5)
 	if err != nil {
 		return err
 	}
@@ -243,8 +278,8 @@ func (obj FundAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (er
 	if err != nil {
 		return err
 	}
-	// Serialize `Padding8` param:
-	err = encoder.Encode(obj.Padding8)
+	// Serialize `Reserved` param:
+	err = encoder.Encode(obj.Reserved)
 	if err != nil {
 		return err
 	}
@@ -268,8 +303,8 @@ func (obj FundAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (er
 	if err != nil {
 		return err
 	}
-	// Serialize `Padding9` param:
-	err = encoder.Encode(obj.Padding9)
+	// Serialize `Padding6` param:
+	err = encoder.Encode(obj.Padding6)
 	if err != nil {
 		return err
 	}
@@ -278,8 +313,13 @@ func (obj FundAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (er
 	if err != nil {
 		return err
 	}
-	// Serialize `Reserved` param:
-	err = encoder.Encode(obj.Reserved)
+	// Serialize `DepositResidualMicroReceiptTokenAmount` param:
+	err = encoder.Encode(obj.DepositResidualMicroReceiptTokenAmount)
+	if err != nil {
+		return err
+	}
+	// Serialize `Reserved1` param:
+	err = encoder.Encode(obj.Reserved1)
 	if err != nil {
 		return err
 	}
@@ -420,8 +460,13 @@ func (obj *FundAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder) 
 	if err != nil {
 		return err
 	}
-	// Deserialize `Padding4`:
-	err = decoder.Decode(&obj.Padding4)
+	// Deserialize `OperationEnabled`:
+	err = decoder.Decode(&obj.OperationEnabled)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Padding3`:
+	err = decoder.Decode(&obj.Padding3)
 	if err != nil {
 		return err
 	}
@@ -430,8 +475,8 @@ func (obj *FundAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder) 
 	if err != nil {
 		return err
 	}
-	// Deserialize `Padding6`:
-	err = decoder.Decode(&obj.Padding6)
+	// Deserialize `Padding4`:
+	err = decoder.Decode(&obj.Padding4)
 	if err != nil {
 		return err
 	}
@@ -445,13 +490,33 @@ func (obj *FundAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder) 
 	if err != nil {
 		return err
 	}
+	// Deserialize `Reserved2`:
+	err = decoder.Decode(&obj.Reserved2)
+	if err != nil {
+		return err
+	}
+	// Deserialize `NumPricingSourceAddresses`:
+	err = decoder.Decode(&obj.NumPricingSourceAddresses)
+	if err != nil {
+		return err
+	}
+	// Deserialize `PricingSourceAddresses`:
+	err = decoder.Decode(&obj.PricingSourceAddresses)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Reserved3`:
+	err = decoder.Decode(&obj.Reserved3)
+	if err != nil {
+		return err
+	}
 	// Deserialize `NormalizedToken`:
 	err = decoder.Decode(&obj.NormalizedToken)
 	if err != nil {
 		return err
 	}
-	// Deserialize `Padding7`:
-	err = decoder.Decode(&obj.Padding7)
+	// Deserialize `Padding5`:
+	err = decoder.Decode(&obj.Padding5)
 	if err != nil {
 		return err
 	}
@@ -465,8 +530,8 @@ func (obj *FundAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder) 
 	if err != nil {
 		return err
 	}
-	// Deserialize `Padding8`:
-	err = decoder.Decode(&obj.Padding8)
+	// Deserialize `Reserved`:
+	err = decoder.Decode(&obj.Reserved)
 	if err != nil {
 		return err
 	}
@@ -490,8 +555,8 @@ func (obj *FundAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder) 
 	if err != nil {
 		return err
 	}
-	// Deserialize `Padding9`:
-	err = decoder.Decode(&obj.Padding9)
+	// Deserialize `Padding6`:
+	err = decoder.Decode(&obj.Padding6)
 	if err != nil {
 		return err
 	}
@@ -500,8 +565,13 @@ func (obj *FundAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder) 
 	if err != nil {
 		return err
 	}
-	// Deserialize `Reserved`:
-	err = decoder.Decode(&obj.Reserved)
+	// Deserialize `DepositResidualMicroReceiptTokenAmount`:
+	err = decoder.Decode(&obj.DepositResidualMicroReceiptTokenAmount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Reserved1`:
+	err = decoder.Decode(&obj.Reserved1)
 	if err != nil {
 		return err
 	}
@@ -1033,19 +1103,21 @@ func (obj *NormalizedTokenWithdrawalAccountAccount) UnmarshalWithDecoder(decoder
 }
 
 type RewardAccountAccount struct {
-	DataVersion      uint16
-	Bump             uint8
-	ReceiptTokenMint ag_solanago.PublicKey
-	MaxHolders       uint8
-	MaxRewards       uint16
-	MaxRewardPools   uint8
-	NumHolders       uint8
-	NumRewards       uint16
-	NumRewardPools   uint8
-	Padding          [5]uint8
-	Holders1         [4]RewardPoolHolder
-	Rewards1         [16]Reward
-	RewardPools1     [4]RewardPool
+	DataVersion        uint16
+	Bump               uint8
+	ReceiptTokenMint   ag_solanago.PublicKey
+	ReserveAccountBump uint8
+	MaxRewards         uint16
+	Padding            [2]uint8
+	NumRewards         uint16
+	Padding2           [6]uint8
+	ReserveAccount     ag_solanago.PublicKey
+	Reserved           [2592]uint8
+	Rewards1           [16]Reward
+	BaseRewardPool     RewardPool
+	BonusRewardPool    RewardPool
+	Reserved2          [83440]uint8
+	Reserved3          [83440]uint8
 }
 
 var RewardAccountAccountDiscriminator = [8]byte{225, 81, 31, 253, 84, 234, 171, 129}
@@ -1071,8 +1143,8 @@ func (obj RewardAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (
 	if err != nil {
 		return err
 	}
-	// Serialize `MaxHolders` param:
-	err = encoder.Encode(obj.MaxHolders)
+	// Serialize `ReserveAccountBump` param:
+	err = encoder.Encode(obj.ReserveAccountBump)
 	if err != nil {
 		return err
 	}
@@ -1081,13 +1153,8 @@ func (obj RewardAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (
 	if err != nil {
 		return err
 	}
-	// Serialize `MaxRewardPools` param:
-	err = encoder.Encode(obj.MaxRewardPools)
-	if err != nil {
-		return err
-	}
-	// Serialize `NumHolders` param:
-	err = encoder.Encode(obj.NumHolders)
+	// Serialize `Padding` param:
+	err = encoder.Encode(obj.Padding)
 	if err != nil {
 		return err
 	}
@@ -1096,18 +1163,18 @@ func (obj RewardAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (
 	if err != nil {
 		return err
 	}
-	// Serialize `NumRewardPools` param:
-	err = encoder.Encode(obj.NumRewardPools)
+	// Serialize `Padding2` param:
+	err = encoder.Encode(obj.Padding2)
 	if err != nil {
 		return err
 	}
-	// Serialize `Padding` param:
-	err = encoder.Encode(obj.Padding)
+	// Serialize `ReserveAccount` param:
+	err = encoder.Encode(obj.ReserveAccount)
 	if err != nil {
 		return err
 	}
-	// Serialize `Holders1` param:
-	err = encoder.Encode(obj.Holders1)
+	// Serialize `Reserved` param:
+	err = encoder.Encode(obj.Reserved)
 	if err != nil {
 		return err
 	}
@@ -1116,8 +1183,23 @@ func (obj RewardAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (
 	if err != nil {
 		return err
 	}
-	// Serialize `RewardPools1` param:
-	err = encoder.Encode(obj.RewardPools1)
+	// Serialize `BaseRewardPool` param:
+	err = encoder.Encode(obj.BaseRewardPool)
+	if err != nil {
+		return err
+	}
+	// Serialize `BonusRewardPool` param:
+	err = encoder.Encode(obj.BonusRewardPool)
+	if err != nil {
+		return err
+	}
+	// Serialize `Reserved2` param:
+	err = encoder.Encode(obj.Reserved2)
+	if err != nil {
+		return err
+	}
+	// Serialize `Reserved3` param:
+	err = encoder.Encode(obj.Reserved3)
 	if err != nil {
 		return err
 	}
@@ -1153,8 +1235,8 @@ func (obj *RewardAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder
 	if err != nil {
 		return err
 	}
-	// Deserialize `MaxHolders`:
-	err = decoder.Decode(&obj.MaxHolders)
+	// Deserialize `ReserveAccountBump`:
+	err = decoder.Decode(&obj.ReserveAccountBump)
 	if err != nil {
 		return err
 	}
@@ -1163,13 +1245,8 @@ func (obj *RewardAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder
 	if err != nil {
 		return err
 	}
-	// Deserialize `MaxRewardPools`:
-	err = decoder.Decode(&obj.MaxRewardPools)
-	if err != nil {
-		return err
-	}
-	// Deserialize `NumHolders`:
-	err = decoder.Decode(&obj.NumHolders)
+	// Deserialize `Padding`:
+	err = decoder.Decode(&obj.Padding)
 	if err != nil {
 		return err
 	}
@@ -1178,18 +1255,18 @@ func (obj *RewardAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder
 	if err != nil {
 		return err
 	}
-	// Deserialize `NumRewardPools`:
-	err = decoder.Decode(&obj.NumRewardPools)
+	// Deserialize `Padding2`:
+	err = decoder.Decode(&obj.Padding2)
 	if err != nil {
 		return err
 	}
-	// Deserialize `Padding`:
-	err = decoder.Decode(&obj.Padding)
+	// Deserialize `ReserveAccount`:
+	err = decoder.Decode(&obj.ReserveAccount)
 	if err != nil {
 		return err
 	}
-	// Deserialize `Holders1`:
-	err = decoder.Decode(&obj.Holders1)
+	// Deserialize `Reserved`:
+	err = decoder.Decode(&obj.Reserved)
 	if err != nil {
 		return err
 	}
@@ -1198,8 +1275,23 @@ func (obj *RewardAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder
 	if err != nil {
 		return err
 	}
-	// Deserialize `RewardPools1`:
-	err = decoder.Decode(&obj.RewardPools1)
+	// Deserialize `BaseRewardPool`:
+	err = decoder.Decode(&obj.BaseRewardPool)
+	if err != nil {
+		return err
+	}
+	// Deserialize `BonusRewardPool`:
+	err = decoder.Decode(&obj.BonusRewardPool)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Reserved2`:
+	err = decoder.Decode(&obj.Reserved2)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Reserved3`:
+	err = decoder.Decode(&obj.Reserved3)
 	if err != nil {
 		return err
 	}
@@ -1315,14 +1407,21 @@ func (obj *UserFundAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Decod
 }
 
 type UserRewardAccountAccount struct {
-	DataVersion        uint16
-	Bump               uint8
-	ReceiptTokenMint   ag_solanago.PublicKey
-	User               ag_solanago.PublicKey
-	NumUserRewardPools uint8
-	MaxUserRewardPools uint8
-	Padding            [11]uint8
-	UserRewardPools1   [4]UserRewardPool
+	DataVersion      uint16
+	Bump             uint8
+	ReceiptTokenMint ag_solanago.PublicKey
+	User             ag_solanago.PublicKey
+
+	// previous fields:
+	// num_user_reward_pools: u8,
+	// max_user_reward_pools: u8,
+	Padding             [2]uint8
+	Reserved            [11]uint8
+	BaseUserRewardPool  UserRewardPool
+	BonusUserRewardPool UserRewardPool
+	Reserved2           [1040]uint8
+	Delegate            ag_solanago.PublicKey
+	Reserved3           [1008]uint8
 }
 
 var UserRewardAccountAccountDiscriminator = [8]byte{55, 245, 122, 238, 147, 89, 164, 198}
@@ -1353,23 +1452,38 @@ func (obj UserRewardAccountAccount) MarshalWithEncoder(encoder *ag_binary.Encode
 	if err != nil {
 		return err
 	}
-	// Serialize `NumUserRewardPools` param:
-	err = encoder.Encode(obj.NumUserRewardPools)
-	if err != nil {
-		return err
-	}
-	// Serialize `MaxUserRewardPools` param:
-	err = encoder.Encode(obj.MaxUserRewardPools)
-	if err != nil {
-		return err
-	}
 	// Serialize `Padding` param:
 	err = encoder.Encode(obj.Padding)
 	if err != nil {
 		return err
 	}
-	// Serialize `UserRewardPools1` param:
-	err = encoder.Encode(obj.UserRewardPools1)
+	// Serialize `Reserved` param:
+	err = encoder.Encode(obj.Reserved)
+	if err != nil {
+		return err
+	}
+	// Serialize `BaseUserRewardPool` param:
+	err = encoder.Encode(obj.BaseUserRewardPool)
+	if err != nil {
+		return err
+	}
+	// Serialize `BonusUserRewardPool` param:
+	err = encoder.Encode(obj.BonusUserRewardPool)
+	if err != nil {
+		return err
+	}
+	// Serialize `Reserved2` param:
+	err = encoder.Encode(obj.Reserved2)
+	if err != nil {
+		return err
+	}
+	// Serialize `Delegate` param:
+	err = encoder.Encode(obj.Delegate)
+	if err != nil {
+		return err
+	}
+	// Serialize `Reserved3` param:
+	err = encoder.Encode(obj.Reserved3)
 	if err != nil {
 		return err
 	}
@@ -1410,23 +1524,38 @@ func (obj *UserRewardAccountAccount) UnmarshalWithDecoder(decoder *ag_binary.Dec
 	if err != nil {
 		return err
 	}
-	// Deserialize `NumUserRewardPools`:
-	err = decoder.Decode(&obj.NumUserRewardPools)
-	if err != nil {
-		return err
-	}
-	// Deserialize `MaxUserRewardPools`:
-	err = decoder.Decode(&obj.MaxUserRewardPools)
-	if err != nil {
-		return err
-	}
 	// Deserialize `Padding`:
 	err = decoder.Decode(&obj.Padding)
 	if err != nil {
 		return err
 	}
-	// Deserialize `UserRewardPools1`:
-	err = decoder.Decode(&obj.UserRewardPools1)
+	// Deserialize `Reserved`:
+	err = decoder.Decode(&obj.Reserved)
+	if err != nil {
+		return err
+	}
+	// Deserialize `BaseUserRewardPool`:
+	err = decoder.Decode(&obj.BaseUserRewardPool)
+	if err != nil {
+		return err
+	}
+	// Deserialize `BonusUserRewardPool`:
+	err = decoder.Decode(&obj.BonusUserRewardPool)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Reserved2`:
+	err = decoder.Decode(&obj.Reserved2)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Delegate`:
+	err = decoder.Decode(&obj.Delegate)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Reserved3`:
+	err = decoder.Decode(&obj.Reserved3)
 	if err != nil {
 		return err
 	}

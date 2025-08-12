@@ -208,6 +208,7 @@ type idlAccountPDASeed struct {
 	Kind  string `json:"kind"`  // const or account
 	Value []byte `json:"value"` // const
 	Path  string `json:"path,omitempty"`
+	Account string `json:"account,omitempty"`
 }
 
 // IdlAccounts is a nested/recursive version of IdlAccount.
@@ -277,10 +278,9 @@ type IdlTypeArray struct {
 }
 
 func (env *IdlType) UnmarshalJSON(data []byte) error {
-
 	var temp interface{}
 	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
+		return fmt.Errorf("error while unmarshaling json to destination: %w", err)
 	}
 
 	if temp == nil {
@@ -289,58 +289,57 @@ func (env *IdlType) UnmarshalJSON(data []byte) error {
 
 	switch v := temp.(type) {
 	case string:
-		{
-			env.asString = IdlTypeAsString(v)
-		}
+		env.asString = IdlTypeAsString(v)
 	case map[string]interface{}:
-		{
-			// Ln(PurpleBG("::IdlType"))
-			// spew.Dump(v)
+		if len(v) == 0 {
+			return nil
+		}
 
-			if len(v) == 0 {
-				return nil
+		if _, ok := v["vec"]; ok {
+			var target IdlTypeVec
+			if err := TranscodeJSON(v, &target); err != nil {
+				return err
 			}
-
-			if _, ok := v["vec"]; ok {
-				var target IdlTypeVec
-				if err := TranscodeJSON(temp, &target); err != nil {
-					return err
+			env.asIdlTypeVec = &target
+		} else if _, ok := v["option"]; ok {
+			var target IdlTypeOption
+			if err := TranscodeJSON(v, &target); err != nil {
+				return err
+			}
+			env.asIdlTypeOption = &target
+		} else if definedValue, ok := v["defined"]; ok {
+			switch val := definedValue.(type) {
+			case string:
+				env.asIdlTypeDefined = &IdlTypeDefined{
+					Defined: IdLTypeDefinedName{Name: val},
 				}
-				env.asIdlTypeVec = &target
-			}
-			if _, ok := v["option"]; ok {
-				var target IdlTypeOption
-				if err := TranscodeJSON(temp, &target); err != nil {
-					return err
-				}
-				env.asIdlTypeOption = &target
-			}
-			if _, ok := v["defined"]; ok {
+			case map[string]interface{}:
 				var target IdlTypeDefined
-				if err := TranscodeJSON(temp, &target); err != nil {
+				if err := TranscodeJSON(v, &target); err != nil {
 					return err
 				}
 				env.asIdlTypeDefined = &target
+			default:
+				return fmt.Errorf("unrecognized type for 'defined' field: %T", val)
 			}
-			if got, ok := v["array"]; ok {
-
-				if _, ok := got.([]interface{}); !ok {
-					panic(Sf("array is not in expected format:\n%s", spew.Sdump(got)))
-				}
-				arrVal := got.([]interface{})
-				if len(arrVal) != 2 {
-					panic(Sf("array is not of expected length:\n%s", spew.Sdump(got)))
-				}
-				var target IdlTypeArray
-				if err := TranscodeJSON(arrVal[0], &target.Elem); err != nil {
-					return err
-				}
-
-				target.Num = int(arrVal[1].(float64))
-
-				env.asIdlTypeArray = &target
+		} else if arrayValue, ok := v["array"]; ok {
+			arr, ok := arrayValue.([]interface{})
+			if !ok {
+				return fmt.Errorf("field 'array' is not in the expected format (an array)")
 			}
-			// panic(Sf("what is this?:\n%s", spew.Sdump(temp)))
+			if len(arr) != 2 {
+				return fmt.Errorf("field 'array' should have 2 elements, but has %d", len(arr))
+			}
+			var target IdlTypeArray
+			if err := TranscodeJSON(arr[0], &target.Elem); err != nil {
+				return fmt.Errorf("while decoding array element type: %w", err)
+			}
+			num, ok := arr[1].(float64)
+			if !ok {
+				return fmt.Errorf("field 'array' size is not a number")
+			}
+			target.Num = int(num)
+			env.asIdlTypeArray = &target
 		}
 	default:
 		return fmt.Errorf("unknown kind: %s", spew.Sdump(temp))
