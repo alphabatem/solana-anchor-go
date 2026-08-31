@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	. "github.com/dave/jennifer/jen"
+	solana "github.com/fluxrpc/solana-go"
 	"github.com/fragmetric-labs/solana-anchor-go/sighash"
-	"github.com/gagliardetto/solana-go"
 	. "github.com/gagliardetto/utilz"
 )
 
