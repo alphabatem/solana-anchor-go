@@ -17,8 +17,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	solana "github.com/fluxrpc/solana-go"
 
+	"github.com/alphabatem/solana-anchor-go/sighash"
 	. "github.com/dave/jennifer/jen"
-	"github.com/fragmetric-labs/solana-anchor-go/sighash"
 	bin "github.com/gagliardetto/binary"
 	. "github.com/gagliardetto/utilz"
 	"golang.org/x/mod/modfile"

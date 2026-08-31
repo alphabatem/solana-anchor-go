@@ -5,9 +5,9 @@ import (
 	"path"
 	"strings"
 
+	"github.com/alphabatem/solana-anchor-go/sighash"
 	. "github.com/dave/jennifer/jen"
 	solana "github.com/fluxrpc/solana-go"
-	"github.com/fragmetric-labs/solana-anchor-go/sighash"
 	. "github.com/gagliardetto/utilz"
 )
 
