@@ -166,6 +166,11 @@ func Test_genField(t *testing.T) {
 			"var thing struct {\n	Space uint64\n}",
 		},
 		{
+			// Legacy (pre-0.30.0) IDLs spell pubkey as "publicKey".
+			`{"name":"owner","type":"publicKey"}`,
+			"var thing struct {\n	Owner solanago.PublicKey\n}",
+		},
+		{
 			`{"name":"space","type": {"option": {"vec": {"array":[{"array":[{"defined":{"name": "Message"}},123]},33607]}}}}`,
 			"var thing struct {\n	Space [][33607][123]Message\n}",
 		},
@@ -178,7 +183,7 @@ func Test_genField(t *testing.T) {
 				panic(err)
 			}
 			code := Var().Id("thing").Struct(
-				genField(target, false),
+				genField(target, exportedFieldNames([]IdlField{target})[0], false),
 			)
 			got := codeToString(code)
 			require.Equal(t, scenario.expected, got)
@@ -285,4 +290,68 @@ func TestFormatAccountAccessorName(t *testing.T) {
 		assert.Equal(t, "GetFooAccount", formatAccountAccessorName("Get", "Foo"))
 		assert.Equal(t, "GetFooAccount", formatAccountAccessorName("Get", "FooAccount"))
 	})
+}
+
+func Test_exportedFieldNames(t *testing.T) {
+	fields := []IdlField{
+		{Name: "virtual_pool"},
+		{Name: "padding_0"},
+		{Name: "partner"},
+		{Name: "_padding_0"},
+		{Name: "_padding"},
+	}
+	require.Equal(t,
+		[]string{"VirtualPool", "Padding0", "Partner", "Padding0_2", "Padding"},
+		exportedFieldNames(fields),
+	)
+}
+
+func Test_IDL_Validate_duplicateInstructionNames(t *testing.T) {
+	// Identical entries generate the same code, so the extra one is dropped.
+	// This is manifest.json, where SwapV2 is listed twice.
+	identical := IDL{Instructions: []IdlInstruction{
+		{Name: "Swap"},
+		{Name: "SwapV2", Args: []IdlField{{Name: "params"}}},
+		{Name: "SwapV2", Args: []IdlField{{Name: "params"}}},
+	}}
+	require.NoError(t, identical.Validate())
+	require.Equal(t, []string{"Swap", "SwapV2"}, instructionNames(identical))
+
+	// Entries that would generate different code cannot be resolved here.
+	conflicting := IDL{Instructions: []IdlInstruction{
+		{Name: "SwapV2", Args: []IdlField{{Name: "params"}}},
+		{Name: "SwapV2", Args: []IdlField{{Name: "other"}}},
+	}}
+	err := conflicting.Validate()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "SwapV2")
+
+	unique := IDL{Instructions: []IdlInstruction{
+		{Name: "Swap"},
+		{Name: "SwapV2"},
+	}}
+	require.NoError(t, unique.Validate())
+	require.Equal(t, []string{"Swap", "SwapV2"}, instructionNames(unique))
+}
+
+func instructionNames(idl IDL) []string {
+	names := make([]string, 0, len(idl.Instructions))
+	for _, instruction := range idl.Instructions {
+		names = append(names, instruction.Name)
+	}
+	return names
+}
+
+func Test_IdlStructFieldSlice_UnmarshalJSON_tupleStruct(t *testing.T) {
+	// A tuple struct's fields are a bare list of types, with no names.
+	var named IdlStructFieldSlice
+	require.NoError(t, json.Unmarshal([]byte(`[{"name":"amount","type":"u64"}]`), &named))
+	require.Equal(t, "amount", named[0].Name)
+	require.Equal(t, IdlTypeU64, named[0].Type.GetString())
+
+	var tuple IdlStructFieldSlice
+	require.NoError(t, json.Unmarshal([]byte(`["bool","u64"]`), &tuple))
+	require.Equal(t, []string{"field0", "field1"}, []string{tuple[0].Name, tuple[1].Name})
+	require.Equal(t, IdlTypeBool, tuple[0].Type.GetString())
+	require.Equal(t, IdlTypeU64, tuple[1].Type.GetString())
 }

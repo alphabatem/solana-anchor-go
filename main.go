@@ -343,6 +343,29 @@ func DecodeInstructions(message *ag_solanago.Message) (instructions []*Instructi
 				Type: typ.Type,
 			}))
 		}
+
+		// Legacy IDLs inline account and event layouts instead of pointing at `types`.
+		for _, acc := range idl.Accounts {
+			if _, ok := defs[acc.Name]; ok || acc.Type.Kind == "" {
+				continue
+			}
+			defs[acc.Name] = acc
+			file.Add(genTypeDef(&idl, nil, IdlTypeDef{
+				Name: acc.Name,
+				Type: acc.Type,
+			}))
+		}
+		for _, evt := range idl.Events {
+			if _, ok := defs[evt.Name]; ok || evt.Fields == nil {
+				continue
+			}
+			def := IdlTypeDef{
+				Name: evt.Name,
+				Type: IdlTypeDefTy{Kind: IdlTypeDefTyKindStruct, Fields: evt.Fields},
+			}
+			defs[evt.Name] = def
+			file.Add(genTypeDef(&idl, nil, def))
+		}
 		files = append(files, &FileWrapper{
 			Name: "types",
 			File: file,
@@ -353,14 +376,19 @@ func DecodeInstructions(message *ag_solanago.Message) (instructions []*Instructi
 		file := NewGoFile(idl.Metadata.Name, true)
 		// Declare account layouts from IDL:
 		for _, acc := range idl.Accounts {
-			if _, ok := defs[acc.Name]; ok {
-				file.Add(genTypeDef(&idl, acc.Discriminator, IdlTypeDef{
-					Name: defs[acc.Name].Name + "Account",
-					Type: defs[acc.Name].Type,
-				}))
-			} else {
-				panic(`not implemented - only IDL from ("anchor": ">=0.30.0") is available`)
+			def, ok := defs[acc.Name]
+			if !ok {
+				panic(Sf("account %q has no layout in either `accounts` or `types`", acc.Name))
 			}
+			discriminator := acc.Discriminator
+			if discriminator == nil {
+				derived := sighash.Discriminator(sighash.AccountNamespace, acc.Name)
+				discriminator = &derived
+			}
+			file.Add(genTypeDef(&idl, discriminator, IdlTypeDef{
+				Name: def.Name + "Account",
+				Type: def.Type,
+			}))
 		}
 		files = append(files, &FileWrapper{
 			Name: "accounts",
@@ -373,11 +401,16 @@ func DecodeInstructions(message *ag_solanago.Message) (instructions []*Instructi
 
 		// Declare account layouts from IDL:
 		for _, evt := range idl.Events {
-			if _, ok := defs[evt.Name]; ok {
-				eventDataTypeName := defs[evt.Name].Name + "EventData"
-				file.Add(genTypeDef(&idl, evt.Discriminator, IdlTypeDef{
+			if def, ok := defs[evt.Name]; ok {
+				eventDataTypeName := def.Name + "EventData"
+				discriminator := evt.Discriminator
+				if discriminator == nil {
+					derived := sighash.Discriminator(sighash.EventNamespace, evt.Name)
+					discriminator = &derived
+				}
+				file.Add(genTypeDef(&idl, discriminator, IdlTypeDef{
 					Name: eventDataTypeName,
-					Type: defs[evt.Name].Type,
+					Type: def.Type,
 				}))
 				file.Add(Func().Params(Op("*").Id(eventDataTypeName)).Id("isEventData").Params().Block())
 
@@ -391,7 +424,7 @@ func DecodeInstructions(message *ag_solanago.Message) (instructions []*Instructi
 					body.Return(Id("obj"))
 				}))
 			} else {
-				panic(`not implemented - only IDL from ("anchor": ">=0.30.0") is available`)
+				panic(Sf("event %q has no layout in either `events` or `types`", evt.Name))
 			}
 		}
 
@@ -724,7 +757,7 @@ func decodeErrorCode(rpcErr error) (errorCode int, ok bool) {
 							fieldsGroup.Comment(doc)
 						}
 					}
-					fieldsGroup.Add(genField(arg, true))
+					fieldsGroup.Add(genField(arg, ToCamel(arg.Name), true))
 				}
 
 				fieldsGroup.Line()
@@ -1380,7 +1413,14 @@ func decodeErrorCode(rpcErr error) (errorCode int, ok bool) {
 				for _, c := range idl.Constants {
 					typ := c.Type.GetString()
 					if typ == "" {
-						typ = IdlTypeAsString(*c.Type.GetDefinedFieldName())
+						// A `[u8; N]` constant has the same value shape as `bytes`.
+						if arr := c.Type.GetArray(); arr != nil && arr.Elem.GetString() == IdlTypeU8 {
+							typ = IdlTypeBytes
+						} else if defined := c.Type.GetDefinedFieldName(); defined != nil {
+							typ = IdlTypeAsString(*defined)
+						} else {
+							panic(fmt.Sprintf("unsupported constant type: %s", spew.Sdump(c)))
+						}
 					}
 					if len(c.Docs) > 0 {
 						for _, doc := range c.Docs {
@@ -1591,6 +1631,15 @@ func genAccountGettersSetters(
 
 			seedParamTypes := make(map[string]Code) // Maps var name to its Go type
 			seedParamOrder := []string{}            // Maintains order of seed parameters
+			// A PDA can use the same account as more than one seed, which is one
+			// parameter used twice.
+			registerSeedParam := func(name string, typ Code) {
+				if _, exists := seedParamTypes[name]; exists {
+					return
+				}
+				seedParamTypes[name] = typ
+				seedParamOrder = append(seedParamOrder, name)
+			}
 			// A slice of functions that will generate the code for appending each seed to the `seeds` slice.
 			seedBodyGen := make([]func(body *Group), len(account.PDA.Seeds))
 
@@ -1651,8 +1700,7 @@ func genAccountGettersSetters(
 							panic(fmt.Sprintf("arg '%s' not found for pda seed (tried both index %d and name matching)", argRootName, argSeedIndex))
 						}
 
-						seedParamTypes[paramName] = genTypeName(argDef.Type)
-						seedParamOrder = append(seedParamOrder, paramName)
+						registerSeedParam(paramName, genTypeName(argDef.Type))
 
 						seedBodyGen[i] = func(body *Group) {
 							body.Commentf("arg: %s", seedDef.Path)
@@ -1673,7 +1721,7 @@ func genAccountGettersSetters(
 
 							body.Add(BlockFunc(func(seedGroup *Group) {
 								seedGroup.Id("encoder").Op(":=").Qual(PkgDfuseBinary, "NewEncoder").Call(Nil())
-								genEncodeValue(seedGroup, fieldType, Id(paramName).Dot(ToCamel(argFieldName)), paramName)
+								genEncodeValue(seedGroup, fieldType, Id(paramName).Dot(ToCamel(argFieldName)), paramName, errReturnNaked)
 								seedGroup.If(Err().Op("=").Id("encoder").Dot("Err").Call(), Err().Op("!=").Nil()).Block(
 									Return(),
 								)
@@ -1712,14 +1760,13 @@ func genAccountGettersSetters(
 							panic(fmt.Sprintf("arg '%s' not found for pda seed (tried both index %d and name matching)", seedDef.Path, argSeedIndex))
 						}
 
-						seedParamTypes[paramName] = genTypeName(argDef.Type)
-						seedParamOrder = append(seedParamOrder, paramName)
+						registerSeedParam(paramName, genTypeName(argDef.Type))
 
 						seedBodyGen[i] = func(body *Group) {
 							body.Commentf("arg: %s", seedDef.Path)
 							body.Add(BlockFunc(func(seedGroup *Group) {
 								seedGroup.Id("encoder").Op(":=").Qual(PkgDfuseBinary, "NewEncoder").Call(Nil())
-								genEncodeValue(seedGroup, argDef.Type, Id(paramName), paramName)
+								genEncodeValue(seedGroup, argDef.Type, Id(paramName), paramName, errReturnNaked)
 								seedGroup.If(Err().Op("=").Id("encoder").Dot("Err").Call(), Err().Op("!=").Nil()).Block(
 									Return(),
 								)
@@ -1735,8 +1782,7 @@ func genAccountGettersSetters(
 						}
 						accountName, accountFieldName := parts[0], parts[1]
 						paramName := ToLowerCamel(accountName) + ToCamel(accountFieldName)
-						seedParamTypes[paramName] = Op("*").Qual(PkgSolanaGo, "PublicKey")
-						seedParamOrder = append(seedParamOrder, paramName)
+						registerSeedParam(paramName, Op("*").Qual(PkgSolanaGo, "PublicKey"))
 
 						seedBodyGen[i] = func(body *Group) {
 							body.Commentf("path: %s", seedDef.Path)
@@ -1745,8 +1791,7 @@ func genAccountGettersSetters(
 
 					} else { // kind: account, path: account
 						paramName := ToLowerCamel(seedDef.Path)
-						seedParamTypes[paramName] = Qual(PkgSolanaGo, "PublicKey")
-						seedParamOrder = append(seedParamOrder, paramName)
+						registerSeedParam(paramName, Qual(PkgSolanaGo, "PublicKey"))
 
 						seedBodyGen[i] = func(body *Group) {
 							body.Commentf("path: %s", seedDef.Path)
@@ -2481,7 +2526,7 @@ func genProgramBoilerplate(idl IDL) (*File, error) {
 						List(Id("m"), Id("ok")).Op(":=").Id("inst").Dot("Impl").Op(".").Parens(Interface(Id("MarshalWithEncoder").Params(Op("*").Qual(PkgDfuseBinary, "Encoder")).Error())),
 						Id("ok"),
 					).BlockFunc(func(g *Group) {
-						emitCheckedCall(g, Id("m").Dot("MarshalWithEncoder").Call(Id("encoder")))
+						emitCheckedCall(g, Id("m").Dot("MarshalWithEncoder").Call(Id("encoder")), errReturnValue)
 					})
 					body.Return(Id("encoder").Dot("Err").Call())
 				})

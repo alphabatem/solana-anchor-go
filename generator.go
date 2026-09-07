@@ -50,7 +50,7 @@ func typeStringToType(ts IdlTypeAsString) *Statement {
 		stat.Index().Byte()
 	case IdlTypeString:
 		stat.String()
-	case IdlTypePubkey:
+	case IdlTypePubkey, IdlTypePubkeyLegacy:
 		stat.Qual(PkgSolanaGo, "PublicKey")
 	case IdlTypeF32:
 		stat.Float32()
@@ -72,9 +72,26 @@ func typeStringToType(ts IdlTypeAsString) *Statement {
 	return stat
 }
 
-func genField(field IdlField, pointer bool) Code {
+// exportedFieldNames resolves field names in layout order, suffixing collisions:
+// `padding_0` and `_padding_0` both camel-case to Padding0.
+func exportedFieldNames(fields []IdlField) []string {
+	names := make([]string, len(fields))
+	used := make(map[string]bool, len(fields))
+	for i, field := range fields {
+		base := ToCamel(field.Name)
+		name := base
+		for suffix := 2; used[name]; suffix++ {
+			name = Sf("%s_%d", base, suffix)
+		}
+		used[name] = true
+		names[i] = name
+	}
+	return names
+}
+
+func genField(field IdlField, name string, pointer bool) Code {
 	st := newStatement()
-	st.Id(ToCamel(field.Name)).
+	st.Id(name).
 		Add(func() Code {
 			if isComplexEnum(field.Type) {
 				return Op("*")
@@ -185,7 +202,7 @@ func genEncodePrimitive(body *Group, ts IdlTypeAsString, value *Statement) {
 		body.Id("encoder").Dot("WriteInt64").Call(value)
 	case IdlTypeString:
 		body.Id("encoder").Dot("WriteBorshString").Call(value)
-	case IdlTypePubkey:
+	case IdlTypePubkey, IdlTypePubkeyLegacy:
 		body.Id("encoder").Dot("WritePublicKey").Call(value)
 	case IdlTypeHash:
 		body.Id("encoder").Dot("WriteHash").Call(value)
@@ -226,7 +243,7 @@ func genDecodePrimitiveExpr(ts IdlTypeAsString) Code {
 		return Id("decoder").Dot("ReadInt64").Call()
 	case IdlTypeString:
 		return Id("decoder").Dot("ReadBorshString").Call()
-	case IdlTypePubkey:
+	case IdlTypePubkey, IdlTypePubkeyLegacy:
 		return Id("decoder").Dot("ReadPublicKey").Call()
 	case IdlTypeHash:
 		return Id("decoder").Dot("ReadHash").Call()
@@ -248,11 +265,26 @@ func genDecodePrimitiveExpr(ts IdlTypeAsString) Code {
 // end: a complex enum's "unknown variant" (or "unknown enum index") error is a genuine
 // application-level error, not reflected in that sticky state, so it must be explicitly
 // propagated here or it would otherwise be silently discarded.
-func emitCheckedCall(body *Group, call *Statement) {
+func emitCheckedCall(body *Group, call *Statement, style errReturn) {
+	if style == errReturnNaked {
+		body.If(Id("err").Op("=").Add(call), Id("err").Op("!=").Nil()).Block(
+			Return(),
+		)
+		return
+	}
 	body.If(Id("err").Op(":=").Add(call), Id("err").Op("!=").Nil()).Block(
 		Return(Id("err")),
 	)
 }
+
+// errReturn picks how a generated error check returns. The PDA finders have named
+// (pda, bumpSeed, err) results, where `return err` would not compile.
+type errReturn int
+
+const (
+	errReturnValue errReturn = iota
+	errReturnNaked
+)
 
 // genEncodeValue emits, into body, the statement(s) that Borsh-encode value (a jennifer
 // expression of IDL type t, e.g. Id("obj").Dot("Foo")) into the local `encoder`. Recurses for
@@ -260,13 +292,13 @@ func emitCheckedCall(body *Group, call *Statement) {
 // Go name) so nested temp/loop variables can't collide with a sibling field's; each recursive
 // call extends it with a distinguishing suffix so nested levels within the same field don't
 // collide with each other either.
-func genEncodeValue(body *Group, t IdlType, value *Statement, varPrefix string) {
+func genEncodeValue(body *Group, t IdlType, value *Statement, varPrefix string, style errReturn) {
 	switch {
 	case t.IsString():
 		ts := t.GetString()
 		switch ts {
 		case IdlTypeU128, IdlTypeI128:
-			emitCheckedCall(body, Add(value).Dot("MarshalWithEncoder").Call(Id("encoder")))
+			emitCheckedCall(body, Add(value).Dot("MarshalWithEncoder").Call(Id("encoder")), style)
 		case IdlTypeBytes:
 			body.Id("encoder").Dot("WriteUint32").Call(Uint32().Call(Len(value)))
 			body.Id("encoder").Dot("WriteBytes").Call(value)
@@ -279,7 +311,7 @@ func genEncodeValue(body *Group, t IdlType, value *Statement, varPrefix string) 
 			Id("encoder").Dot("WriteBool").Call(False()),
 		).Else().BlockFunc(func(g *Group) {
 			g.Id("encoder").Dot("WriteBool").Call(True())
-			genEncodeValue(g, opt.Option, Parens(Op("*").Add(value)), varPrefix+"O")
+			genEncodeValue(g, opt.Option, Parens(Op("*").Add(value)), varPrefix+"O", style)
 		})
 	case t.IsIdlTypeVec():
 		vec := t.GetIdlTypeVec()
@@ -289,7 +321,7 @@ func genEncodeValue(body *Group, t IdlType, value *Statement, varPrefix string) 
 		} else {
 			loopVar := varPrefix + "Elem"
 			body.For(List(Id("_"), Id(loopVar)).Op(":=").Range().Add(value)).BlockFunc(func(g *Group) {
-				genEncodeValue(g, vec.Vec, Id(loopVar), varPrefix+"V")
+				genEncodeValue(g, vec.Vec, Id(loopVar), varPrefix+"V", style)
 			})
 		}
 	case t.IsArray():
@@ -299,11 +331,11 @@ func genEncodeValue(body *Group, t IdlType, value *Statement, varPrefix string) 
 		} else {
 			loopVar := varPrefix + "Elem"
 			body.For(List(Id("_"), Id(loopVar)).Op(":=").Range().Add(value)).BlockFunc(func(g *Group) {
-				genEncodeValue(g, arr.Elem, Id(loopVar), varPrefix+"A")
+				genEncodeValue(g, arr.Elem, Id(loopVar), varPrefix+"A", style)
 			})
 		}
 	case t.IsIdlTypeDefined():
-		emitCheckedCall(body, Add(value).Dot("MarshalWithEncoder").Call(Id("encoder")))
+		emitCheckedCall(body, Add(value).Dot("MarshalWithEncoder").Call(Id("encoder")), style)
 	default:
 		panic(spew.Sdump(t))
 	}
@@ -319,7 +351,7 @@ func genDecodeValue(body *Group, t IdlType, dest *Statement, varPrefix string) {
 		ts := t.GetString()
 		switch ts {
 		case IdlTypeU128, IdlTypeI128:
-			emitCheckedCall(body, Parens(Op("&").Add(dest)).Dot("UnmarshalWithDecoder").Call(Id("decoder")))
+			emitCheckedCall(body, Parens(Op("&").Add(dest)).Dot("UnmarshalWithDecoder").Call(Id("decoder")), errReturnValue)
 		case IdlTypeBytes:
 			lenVar := varPrefix + "N"
 			body.Id(lenVar).Op(":=").Id("decoder").Dot("ReadUint32").Call()
@@ -369,7 +401,7 @@ func genDecodeValue(body *Group, t IdlType, dest *Statement, varPrefix string) {
 			})
 		}
 	case t.IsIdlTypeDefined():
-		emitCheckedCall(body, Parens(Op("&").Add(dest)).Dot("UnmarshalWithDecoder").Call(Id("decoder")))
+		emitCheckedCall(body, Parens(Op("&").Add(dest)).Dot("UnmarshalWithDecoder").Call(Id("decoder")), errReturnValue)
 	default:
 		panic(spew.Sdump(t))
 	}
@@ -385,6 +417,7 @@ func genTypeDef(idl *IDL, withDiscriminator *[8]byte, def IdlTypeDef) Code {
 				emptyFields := []IdlField{}
 				def.Type.Fields = (*IdlStructFieldSlice)(&emptyFields)
 			}
+			fieldNames := exportedFieldNames(*def.Type.Fields)
 			for fieldIndex, field := range *def.Type.Fields {
 				for docIndex, doc := range field.Docs {
 					if docIndex == 0 && fieldIndex > 0 {
@@ -392,7 +425,7 @@ func genTypeDef(idl *IDL, withDiscriminator *[8]byte, def IdlTypeDef) Code {
 					}
 					fieldsGroup.Comment(doc)
 				}
-				fieldsGroup.Add(genField(field, field.Type.IsIdlTypeOption()))
+				fieldsGroup.Add(genField(field, fieldNames[fieldIndex], field.Type.IsIdlTypeOption()))
 			}
 		})
 		st.Add(code.Line())
@@ -570,7 +603,7 @@ func genTypeDef(idl *IDL, withDiscriminator *[8]byte, def IdlTypeDef) Code {
 							switch {
 							case variant.Fields.IdlEnumFieldsNamed != nil:
 								for _, variantField := range *variant.Fields.IdlEnumFieldsNamed {
-									structGroup.Add(genField(variantField, variantField.Type.IsIdlTypeOption()))
+									structGroup.Add(genField(variantField, ToCamel(variantField.Name), variantField.Type.IsIdlTypeOption()))
 								}
 							default:
 								for i, variantTupleItem := range *variant.Fields.IdlEnumFieldsTuple {
@@ -578,7 +611,7 @@ func genTypeDef(idl *IDL, withDiscriminator *[8]byte, def IdlTypeDef) Code {
 										Name: getElementFieldName(i),
 										Type: variantTupleItem,
 									}
-									structGroup.Add(genField(variantField, variantField.Type.IsIdlTypeOption()))
+									structGroup.Add(genField(variantField, ToCamel(variantField.Name), variantField.Type.IsIdlTypeOption()))
 								}
 							}
 						},
@@ -747,7 +780,7 @@ func genMarshalWithEncoder_enum(
 							switchGroup.Case(Id(formatComplexEnumVariantTypeName(receiverTypeName, variant))).
 								BlockFunc(func(caseGroup *Group) {
 									caseGroup.Id("encoder").Dot("WriteUint8").Call(Lit(variantIndex))
-									emitCheckedCall(caseGroup, Id("v").Dot("MarshalWithEncoder").Call(Id("encoder")))
+									emitCheckedCall(caseGroup, Id("v").Dot("MarshalWithEncoder").Call(Id("encoder")), errReturnValue)
 								})
 						}
 					}
@@ -861,8 +894,9 @@ func genMarshalWithEncoder_struct(
 					body.Id("encoder").Dot("WriteBytes").Call(Id(discriminatorName).Index(Op(":")))
 				}
 
-				for _, field := range fields {
-					exportedArgName := ToCamel(field.Name)
+				fieldNames := exportedFieldNames(fields)
+				for fieldIndex, field := range fields {
+					exportedArgName := fieldNames[fieldIndex]
 					if field.Type.IsIdlTypeOption() {
 						body.Commentf("Serialize `%s` param (optional):", exportedArgName)
 					} else {
@@ -872,7 +906,7 @@ func genMarshalWithEncoder_struct(
 					if fieldIsRequiredPointer(field.Type, alwaysPointerFields) {
 						dest = Parens(Op("*").Add(dest))
 					}
-					genEncodeValue(body, field.Type, dest, exportedArgName)
+					genEncodeValue(body, field.Type, dest, exportedArgName, errReturnValue)
 				}
 				body.Return(Id("encoder").Dot("Err").Call())
 			})
@@ -928,8 +962,9 @@ func genUnmarshalWithDecoder_struct(
 					})
 				}
 
-				for _, field := range fields {
-					exportedArgName := ToCamel(field.Name)
+				fieldNames := exportedFieldNames(fields)
+				for fieldIndex, field := range fields {
+					exportedArgName := fieldNames[fieldIndex]
 					if field.Type.IsIdlTypeOption() {
 						body.Commentf("Deserialize `%s` (optional):", exportedArgName)
 					} else {

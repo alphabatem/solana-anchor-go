@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/davecgh/go-spew/spew"
 	. "github.com/gagliardetto/utilz"
@@ -51,13 +52,46 @@ func (named IdlTypeDefSlice) GetByName(name string) *IdlTypeDef {
 
 // Validate validates and IDL
 func (idl *IDL) Validate() error {
-	// TODO
+	// Two instructions can camel-case to one name and so declare Instruction_<Name>
+	// twice. manifest.json lists SwapV2 twice, differing only in the legacy u8
+	// `discriminant` this generator does not read, so both generate the same code and
+	// the extra one is dropped. Entries that would generate different code cannot be
+	// resolved here.
+	kept := make([]IdlInstruction, 0, len(idl.Instructions))
+	seen := make(map[string]IdlInstruction, len(idl.Instructions))
+	for _, instruction := range idl.Instructions {
+		exported := ToCamel(instruction.Name)
+		previous, duplicate := seen[exported]
+		if !duplicate {
+			seen[exported] = instruction
+			kept = append(kept, instruction)
+			continue
+		}
+		if !instruction.generatesSameAs(previous) {
+			return fmt.Errorf(
+				"instructions %q and %q both generate the Go name %q and differ; remove or rename one in the IDL",
+				previous.Name, instruction.Name, exported,
+			)
+		}
+	}
+	idl.Instructions = kept
 	return nil
 }
 
 type IdlEvent struct {
 	Name          string   `json:"name"`
 	Discriminator *[8]byte `json:"discriminator,omitempty"`
+
+	// Fields is set only by legacy IDLs, which inline the event layout here.
+	Fields *IdlStructFieldSlice `json:"fields,omitempty"`
+}
+
+// generatesSameAs reports whether both instructions produce identical code: the
+// generator reads only the discriminator, accounts and args.
+func (instruction IdlInstruction) generatesSameAs(other IdlInstruction) bool {
+	return reflect.DeepEqual(instruction.Discriminator, other.Discriminator) &&
+		reflect.DeepEqual(instruction.Accounts, other.Accounts) &&
+		reflect.DeepEqual(instruction.Args, other.Args)
 }
 
 type IdlInstruction struct {
@@ -205,9 +239,9 @@ type idlAccountPDA struct {
 }
 
 type idlAccountPDASeed struct {
-	Kind  string `json:"kind"`  // const or account
-	Value []byte `json:"value"` // const
-	Path  string `json:"path,omitempty"`
+	Kind    string `json:"kind"`  // const or account
+	Value   []byte `json:"value"` // const
+	Path    string `json:"path,omitempty"`
 	Account string `json:"account,omitempty"`
 }
 
@@ -241,8 +275,11 @@ const (
 	IdlTypeBytes  IdlTypeAsString = "bytes"
 	IdlTypeString IdlTypeAsString = "string"
 	IdlTypePubkey IdlTypeAsString = "pubkey"
-	IdlTypeF32    IdlTypeAsString = "f32"
-	IdlTypeF64    IdlTypeAsString = "f64"
+
+	// IdlTypePubkeyLegacy is the pre-0.30.0 spelling of IdlTypePubkey.
+	IdlTypePubkeyLegacy IdlTypeAsString = "publicKey"
+	IdlTypeF32          IdlTypeAsString = "f32"
+	IdlTypeF64          IdlTypeAsString = "f64"
 
 	// Custom additions:
 	IdlTypeUnixTimestamp IdlTypeAsString = "unixTimestamp"
@@ -426,6 +463,42 @@ const (
 )
 
 type IdlStructFieldSlice []IdlField
+
+// UnmarshalJSON accepts a named struct's `[{"name":..,"type":..}]` and a tuple
+// struct's `["bool"]`, naming tuple elements by position.
+func (slice *IdlStructFieldSlice) UnmarshalJSON(data []byte) error {
+	var raw []json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	out := make(IdlStructFieldSlice, 0, len(raw))
+	for i, elem := range raw {
+		var probe struct {
+			Name *string `json:"name"`
+		}
+		if err := json.Unmarshal(elem, &probe); err == nil && probe.Name != nil {
+			var field IdlField
+			if err := json.Unmarshal(elem, &field); err != nil {
+				return err
+			}
+			out = append(out, field)
+			continue
+		}
+
+		var typ IdlType
+		if err := json.Unmarshal(elem, &typ); err != nil {
+			return fmt.Errorf("field %d is neither a named field nor a type: %w", i, err)
+		}
+		out = append(out, IdlField{
+			Name: fmt.Sprintf("field%d", i),
+			Type: typ,
+		})
+	}
+
+	*slice = out
+	return nil
+}
 
 type IdlEnumVariantSlice []IdlEnumVariant
 
