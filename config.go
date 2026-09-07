@@ -37,12 +37,14 @@ func (cfg *Config) Validate() error {
 	return nil
 }
 
+// isValidEncoder only accepts Borsh: the generator now emits hand-rolled Borsh codegen against
+// fluxrpc/solana-go/binary, which has no Bin/CompactU16-style alternate encoding modes, and the
+// "bin"/"compact-u16" modes were never fully correct even under the old gagliardetto/binary
+// backend (complex-enum codegen only ever round-tripped under Borsh).
 func isValidEncoder(enc EncoderName) bool {
 	return SliceContains(
 		[]string{
 			string(EncodingBorsh),
-			string(EncodingBin),
-			string(EncodingCompactU16),
 		},
 		string(enc),
 	)
@@ -58,14 +60,12 @@ const (
 	TypeIDNoType    TypeIDName = "notype"
 )
 
+// isValidTypeIDName only accepts Anchor: it's the only mode this generator's own example output
+// ever actually used (Uvarint32/Uint32/Uint8/NoType were unimplemented `// TODO` stubs already).
 func isValidTypeIDName(typeID TypeIDName) bool {
 	return SliceContains(
 		[]string{
-			string(TypeIDUvarint32),
-			string(TypeIDUint32),
-			string(TypeIDUint8),
 			string(TypeIDAnchor),
-			string(TypeIDNoType),
 		},
 		string(typeID),
 	)
@@ -94,39 +94,14 @@ func (name TypeIDName) On(
 type EncoderName string
 
 const (
-	// github.com/gagliardetto/binary: NewBinEncoder, NewBinDecoder
-	EncodingBin EncoderName = "bin"
-	// github.com/gagliardetto/binary: NewBorshEncoder, NewBorshDecoder
+	// EncodingBin and EncodingCompactU16 are not currently accepted by isValidEncoder — the
+	// generator only emits Borsh codegen — but the constants and dispatch machinery are kept
+	// so unreachable-mode branches elsewhere still compile.
+	EncodingBin   EncoderName = "bin"
 	EncodingBorsh EncoderName = "borsh"
 	// https://docs.solana.com/developing/programming-model/transactions#compact-array-format
 	EncodingCompactU16 EncoderName = "compact-u16"
 )
-
-func (name EncoderName) _NewEncoder() string {
-	switch enc := GetConfig().Encoding; enc {
-	case EncodingBin:
-		return "NewBinEncoder"
-	case EncodingBorsh:
-		return "NewBorshEncoder"
-	case EncodingCompactU16:
-		return "NewCompact16Encoder"
-	default:
-		panic(enc)
-	}
-}
-
-func (name EncoderName) _NewDecoder() string {
-	switch enc := GetConfig().Encoding; enc {
-	case EncodingBin:
-		return "NewBinDecoder"
-	case EncodingBorsh:
-		return "NewBorshDecoder"
-	case EncodingCompactU16:
-		return "NewCompact16Decoder"
-	default:
-		panic(enc)
-	}
-}
 
 type EncoderNameSlice []EncoderName
 

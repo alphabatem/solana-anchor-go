@@ -1,11 +1,23 @@
 package sighash
 
 import (
+	"crypto/sha256"
 	"strings"
 	"unicode"
 
 	. "github.com/gagliardetto/utilz"
 )
+
+// GlobalNamespace is the Anchor sighash namespace used for instruction discriminators.
+const GlobalNamespace = "global"
+
+// Discriminator computes an Anchor-style 8-byte discriminator: sha256(namespace + ":" + name)[:8].
+func Discriminator(namespace, name string) [8]byte {
+	sum := sha256.Sum256([]byte(namespace + ":" + name))
+	var out [8]byte
+	copy(out[:], sum[:8])
+	return out
+}
 
 func ToSnakeForSighash(s string) string {
 	return ToRustSnakeCase(s)

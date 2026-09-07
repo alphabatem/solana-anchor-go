@@ -60,11 +60,11 @@ func Test_genTypeName(t *testing.T) {
 		},
 		{
 			`{"type": "u128"}`,
-			"var thing binary.Uint128",
+			"var thing Uint128",
 		},
 		{
 			`{"type": "i128"}`,
-			"var thing binary.Int128",
+			"var thing Int128",
 		},
 		{
 			// TODO: is this also OK as []byte ???
