@@ -13,13 +13,6 @@ import (
 func genFormatFile(idl IDL) (*FileWrapper, error) {
 	file := NewGoFile(idl.Metadata.Name, true)
 
-	// EncodableToTree replaces github.com/gagliardetto/solana-go/text.EncodableToTree.
-	file.Add(
-		Type().Id("EncodableToTree").Interface(
-			Id("EncodeToTree").Params(Id("parent").Qual(PkgTreeout, "Branches")),
-		).Line(),
-	)
-
 	// Option/Encoder replace github.com/gagliardetto/solana-go/text.{Option,Encoder}.
 	file.Add(Type().Id("Option").Struct().Line())
 	file.Add(

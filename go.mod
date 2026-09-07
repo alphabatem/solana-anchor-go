@@ -8,7 +8,7 @@ require (
 	github.com/fluxrpc/solana-go v0.1.7
 	github.com/gagliardetto/utilz v0.1.3
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/mod v0.4.2
+	golang.org/x/mod v0.40.0
 )
 
 require (
@@ -19,12 +19,14 @@ require (
 	github.com/bytedance/sonic/loader v0.5.2 // indirect
 	github.com/cloudwego/base64x v0.1.7 // indirect
 	github.com/fluxrpc/base58 v1.2.0 // indirect
+	github.com/gagliardetto/gofuzz v1.2.2 // indirect
 	github.com/hako/durafmt v0.0.0-20200710122514-c0fb7b4da026 // indirect
 	github.com/klauspost/compress v1.19.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/miekg/dns v1.1.35 // indirect
+	github.com/mr-tron/base58 v1.3.0 // indirect
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20251114093237-2ab5a27a1729 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect

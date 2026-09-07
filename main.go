@@ -1183,66 +1183,6 @@ func decodeErrorCode(rpcErr error) (errorCode int, ok bool) {
 			// Declare `EncodeToTree(parent treeout.Branches)` method in instruction:
 			code := Empty()
 
-			code.Line().Line().Func().Params(Id("inst").Op("*").Id(formatInstructionTypeName(insExportedName))).Id("EncodeToTree").
-				Params(
-					ListFunc(func(params *Group) {
-						// Parameters:
-						params.Id("parent").Qual(PkgTreeout, "Branches")
-					}),
-				).
-				Params(
-					ListFunc(func(results *Group) {
-						// Results:
-					}),
-				).
-				BlockFunc(func(body *Group) {
-					// Body:
-
-					body.Id("parent").Dot("Child").Call(Id("formatProgram").Call(Id("ProgramName"), Id("ProgramID"))).Op(".").
-						Line().Comment("").Line().
-						Id("ParentFunc").Parens(Func().Parens(Id("programBranch").Qual(PkgTreeout, "Branches")).BlockFunc(
-						func(programBranchGroup *Group) {
-							programBranchGroup.Id("programBranch").Dot("Child").Call(Id("formatInstruction").Call(Lit(insExportedName))).Op(".").
-								Line().Comment("").Line().
-								Id("ParentFunc").Parens(Func().Parens(Id("instructionBranch").Qual(PkgTreeout, "Branches")).BlockFunc(
-								func(instructionBranchGroup *Group) {
-
-									instructionBranchGroup.Line().Comment("Parameters of the instruction:")
-
-									instructionBranchGroup.Id("instructionBranch").Dot("Child").Call(Lit(Sf("Params[len=%v]", len(args)))).Dot("ParentFunc").Parens(Func().Parens(Id("paramsBranch").Qual(PkgTreeout, "Branches")).BlockFunc(func(paramsBranchGroup *Group) {
-										longest := treeFindLongestNameFromFields(args)
-										for _, arg := range args {
-											exportedArgName := ToCamel(arg.Name)
-											paramsBranchGroup.Id("paramsBranch").Dot("Child").
-												Call(
-													Id("formatParam").Call(
-														Lit(strings.Repeat(" ", longest-len(exportedArgName))+exportedArgName+StringIf(arg.Type.IsIdlTypeOption(), " (OPT)")),
-														Add(CodeIf(!arg.Type.IsIdlTypeOption() && !isComplexEnum(arg.Type), Op("*"))).Id("inst").Dot(exportedArgName),
-													),
-												)
-										}
-									}))
-
-									instructionBranchGroup.Line().Comment("Accounts of the instruction:")
-
-									instructionBranchGroup.Id("instructionBranch").Dot("Child").Call(Lit(Sf("Accounts[len=%v]", instruction.Accounts.NumAccounts()))).Dot("ParentFunc").Parens(
-										Func().Parens(Id("accountsBranch").Qual(PkgTreeout, "Branches")).BlockFunc(func(accountsBranchGroup *Group) {
-
-											longest := treeFindLongestNameFromAccounts(instruction.Accounts)
-											instruction.Accounts.Walk("", nil, nil, func(groupPath string, accountIndex int, parentGroup *IdlAccounts, ia *IdlAccount) bool {
-
-												cleanedName := treeFormatAccountName(ia.Name)
-
-												exportedAccountName := filepath.Join(groupPath, cleanedName)
-
-												access := Id("accountsBranch").Dot("Child").Call(Id("formatMeta").Call(Lit(strings.Repeat(" ", longest-len(exportedAccountName))+exportedAccountName), Id("inst").Dot("AccountMetaSlice").Dot("Get").Call(Lit(accountIndex))))
-												accountsBranchGroup.Add(access)
-												return true
-											})
-										}))
-								}))
-						}))
-				})
 			file.Add(code.Line())
 		}
 
@@ -2332,20 +2272,7 @@ func genProgramBoilerplate(idl IDL) (*File, error) {
 		{
 			// `EncodeToTree(parent treeout.Branches)` method
 			code := Empty()
-			code.Func().Parens(Id("inst").Op("*").Id("Instruction")).Id("EncodeToTree").
-				Params(Id("parent").Qual(PkgTreeout, "Branches")).
-				Params().
-				BlockFunc(func(body *Group) {
-					body.If(
-						List(Id("enToTree"), Id("ok")).Op(":=").Id("inst").Dot("Impl").Op(".").Parens(Id("EncodableToTree")).
-							Op(";").
-							Id("ok"),
-					).Block(
-						Id("enToTree").Dot("EncodeToTree").Call(Id("parent")),
-					).Else().Block(
-						Id("parent").Dot("Child").Call(Qual("github.com/davecgh/go-spew/spew", "Sdump").Call(Id("inst"))),
-					)
-				})
+
 			file.Add(code.Line())
 		}
 		{
