@@ -55,7 +55,7 @@ func genTestingFuncs(idl IDL) ([]*FileWrapper, error) {
 				Params(
 					ListFunc(func(params *Group) {
 						// Parameters:
-						params.Id("data").Interface()
+						params.Id("data").Interface(Id("MarshalWithEncoder").Params(Op("*").Qual(PkgDfuseBinary, "Encoder")).Error())
 						params.Id("buf").Op("*").Qual("bytes", "Buffer")
 					}),
 				).
@@ -67,12 +67,14 @@ func genTestingFuncs(idl IDL) ([]*FileWrapper, error) {
 				).
 				BlockFunc(func(body *Group) {
 					// Body:
+					body.Id("encoder").Op(":=").Qual(PkgDfuseBinary, "NewEncoder").Call(Nil())
 					body.If(
-						Err().Op(":=").Qual(PkgDfuseBinary, GetConfig().Encoding._NewEncoder()).Call(Id("buf")).Dot("Encode").Call(Id("data")),
+						Err().Op(":=").Id("data").Dot("MarshalWithEncoder").Call(Id("encoder")),
 						Err().Op("!=").Nil(),
 					).Block(
 						Return(Qual("fmt", "Errorf").Call(Lit("unable to encode instruction: %w"), Err())),
 					)
+					body.Id("buf").Dot("Write").Call(Id("encoder").Dot("Bytes").Call())
 					body.Return(Nil())
 				})
 			file.Add(code.Line())
@@ -83,7 +85,7 @@ func genTestingFuncs(idl IDL) ([]*FileWrapper, error) {
 				Params(
 					ListFunc(func(params *Group) {
 						// Parameters:
-						params.Id("dst").Interface()
+						params.Id("dst").Interface(Id("UnmarshalWithDecoder").Params(Op("*").Qual(PkgDfuseBinary, "Decoder")).Error())
 						params.Id("data").Index().Byte()
 					}),
 				).
@@ -95,7 +97,7 @@ func genTestingFuncs(idl IDL) ([]*FileWrapper, error) {
 				).
 				BlockFunc(func(body *Group) {
 					// Body:
-					body.Return(Qual(PkgDfuseBinary, GetConfig().Encoding._NewDecoder()).Call(Id("data")).Dot("Decode").Call(Id("dst")))
+					body.Return(Id("dst").Dot("UnmarshalWithDecoder").Call(Qual(PkgDfuseBinary, "NewDecoder").Call(Id("data"))))
 				})
 			file.Add(code.Line())
 		}
