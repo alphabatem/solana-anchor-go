@@ -11,6 +11,12 @@ import (
 // GlobalNamespace is the Anchor sighash namespace used for instruction discriminators.
 const GlobalNamespace = "global"
 
+// Namespaces for account and event discriminators, which legacy IDLs omit.
+const (
+	AccountNamespace = "account"
+	EventNamespace   = "event"
+)
+
 // Discriminator computes an Anchor-style 8-byte discriminator: sha256(namespace + ":" + name)[:8].
 func Discriminator(namespace, name string) [8]byte {
 	sum := sha256.Sum256([]byte(namespace + ":" + name))
